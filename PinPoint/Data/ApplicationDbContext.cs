@@ -9,5 +9,7 @@ namespace PinPoint.Data
             : base(options)
         {
         }
+
+        public DbSet<Symptom> Symptoms { get; set; }
     }
 }
