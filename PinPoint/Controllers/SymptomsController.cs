@@ -62,6 +62,13 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SymptomCreateVM symptomCreate)
         {
+            // Check if Symptom name exists
+            if (await CheckIfSymptomNameExistsAsync(symptomCreate.Name))
+            {
+                ModelState.AddModelError(nameof(symptomCreate.Name), 
+                    "This symptom already exists.");
+            }
+
             if (ModelState.IsValid)
             {
                 var symptom = _mapper.Map<Symptom>(symptomCreate);
@@ -162,6 +169,11 @@ namespace PinPoint.Controllers
         private bool SymptomExists(int id)
         {
             return _context.Symptoms.Any(e => e.Id == id);
+        }
+        private async Task<bool> CheckIfSymptomNameExistsAsync(string name)
+        {
+            var lowercaseName = name.ToLower();
+            return await _context.Symptoms.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName));
         }
     }
 }
