@@ -2,26 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PinPoint.Data;
+using PinPoint.Models.Symptoms;
 
 namespace PinPoint.Controllers
 {
     public class SymptomsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public SymptomsController(ApplicationDbContext context)
+        public SymptomsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            this._mapper = mapper;
         }
 
         // GET: Symptoms
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Symptoms.ToListAsync());
+            var data = await _context.Symptoms.ToListAsync();
+            var viewData = _mapper.Map<List<SymptomReadOnlyVM>>(data);
+            return View(viewData);
         }
 
         // GET: Symptoms/Details/5
@@ -39,7 +45,8 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
-            return View(symptom);
+            var viewData = _mapper.Map<SymptomReadOnlyVM>(symptom);
+            return View(viewData);
         }
 
         // GET: Symptoms/Create
@@ -53,15 +60,16 @@ namespace PinPoint.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,NumberOfDays")] Symptom symptom)
+        public async Task<IActionResult> Create(SymptomCreateVM symptomCreate)
         {
             if (ModelState.IsValid)
             {
+                var symptom = _mapper.Map<Symptom>(symptomCreate);
                 _context.Add(symptom);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(symptom);
+            return View(symptomCreate);
         }
 
         // GET: Symptoms/Edit/5
@@ -77,7 +85,8 @@ namespace PinPoint.Controllers
             {
                 return NotFound();
             }
-            return View(symptom);
+            var viewData = _mapper.Map<SymptomEditVM>(symptom);
+            return View(viewData);
         }
 
         // POST: Symptoms/Edit/5
@@ -85,9 +94,9 @@ namespace PinPoint.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,NumberOfDays")] Symptom symptom)
+        public async Task<IActionResult> Edit(int id, SymptomEditVM symptomEdit)
         {
-            if (id != symptom.Id)
+            if (id != symptomEdit.Id)
             {
                 return NotFound();
             }
@@ -96,12 +105,13 @@ namespace PinPoint.Controllers
             {
                 try
                 {
+                    var symptom = _mapper.Map<Symptom>(symptomEdit);
                     _context.Update(symptom);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SymptomExists(symptom.Id))
+                    if (!SymptomExists(symptomEdit.Id))
                     {
                         return NotFound();
                     }
@@ -112,7 +122,7 @@ namespace PinPoint.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(symptom);
+            return View(symptomEdit);
         }
 
         // GET: Symptoms/Delete/5
@@ -130,7 +140,8 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
-            return View(symptom);
+            var viewData = _mapper.Map<SymptomReadOnlyVM>(symptom);
+            return View(viewData);
         }
 
         // POST: Symptoms/Delete/5
