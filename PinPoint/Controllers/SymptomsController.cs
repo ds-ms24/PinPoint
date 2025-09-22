@@ -8,25 +8,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PinPoint.Data;
 using PinPoint.Models.Symptoms;
+using PinPoint.Services;
 
 namespace PinPoint.Controllers
 {
-    public class SymptomsController : Controller
+    public class SymptomsController(ISymptomsService symptomsService) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-
-        public SymptomsController(ApplicationDbContext context, IMapper mapper)
-        {
-            _context = context;
-            this._mapper = mapper;
-        }
+        private readonly ISymptomsService _symptomsService = symptomsService;
+        private const string NameExistsValidationMessage = "This symptom already exists.";
 
         // GET: Symptoms
         public async Task<IActionResult> Index()
         {
-            var data = await _context.Symptoms.ToListAsync();
-            var viewData = _mapper.Map<List<SymptomReadOnlyVM>>(data);
+            var viewData = await _symptomsService.GetAll();
             return View(viewData);
         }
 
@@ -38,15 +32,13 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
-            var symptom = await _context.Symptoms
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var symptom = await _symptomsService.Get<SymptomReadOnlyVM>(id.Value);
             if (symptom == null)
             {
                 return NotFound();
             }
 
-            var viewData = _mapper.Map<SymptomReadOnlyVM>(symptom);
-            return View(viewData);
+            return View(symptom);
         }
 
         // GET: Symptoms/Create
@@ -62,18 +54,14 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SymptomCreateVM symptomCreate)
         {
-            // Check if Symptom name exists
-            if (await CheckIfSymptomNameExistsAsync(symptomCreate.Name))
+            if (await _symptomsService.CheckIfSymptomNameExistsAsync(symptomCreate.Name))
             {
-                ModelState.AddModelError(nameof(symptomCreate.Name), 
-                    "This symptom already exists.");
+                ModelState.AddModelError(nameof(symptomCreate.Name), NameExistsValidationMessage);
             }
 
             if (ModelState.IsValid)
             {
-                var symptom = _mapper.Map<Symptom>(symptomCreate);
-                _context.Add(symptom);
-                await _context.SaveChangesAsync();
+                await _symptomsService.Create(symptomCreate);
                 return RedirectToAction(nameof(Index));
             }
             return View(symptomCreate);
@@ -87,13 +75,13 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
-            var symptom = await _context.Symptoms.FindAsync(id);
+            var symptom = await _symptomsService.Get<SymptomEditVM>(id.Value);
             if (symptom == null)
             {
                 return NotFound();
             }
-            var viewData = _mapper.Map<SymptomEditVM>(symptom);
-            return View(viewData);
+            
+            return View(symptom);
         }
 
         // POST: Symptoms/Edit/5
@@ -108,17 +96,21 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
+            // Check if Symptom name exists
+            if (await _symptomsService.CheckIfSymptomNameExistsForEditAsync(symptomEdit))
+            {
+                ModelState.AddModelError(nameof(symptomEdit.Name), NameExistsValidationMessage);
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var symptom = _mapper.Map<Symptom>(symptomEdit);
-                    _context.Update(symptom);
-                    await _context.SaveChangesAsync();
+                    await _symptomsService.Edit(symptomEdit);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SymptomExists(symptomEdit.Id))
+                    if (! _symptomsService.SymptomExists(symptomEdit.Id))
                     {
                         return NotFound();
                     }
@@ -140,15 +132,12 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
-            var symptom = await _context.Symptoms
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var symptom = await _symptomsService.Get<SymptomReadOnlyVM>(id.Value);
             if (symptom == null)
             {
                 return NotFound();
             }
-
-            var viewData = _mapper.Map<SymptomReadOnlyVM>(symptom);
-            return View(viewData);
+            return View(symptom);
         }
 
         // POST: Symptoms/Delete/5
@@ -156,24 +145,8 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var symptom = await _context.Symptoms.FindAsync(id);
-            if (symptom != null)
-            {
-                _context.Symptoms.Remove(symptom);
-            }
-
-            await _context.SaveChangesAsync();
+            await _symptomsService.Remove(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool SymptomExists(int id)
-        {
-            return _context.Symptoms.Any(e => e.Id == id);
-        }
-        private async Task<bool> CheckIfSymptomNameExistsAsync(string name)
-        {
-            var lowercaseName = name.ToLower();
-            return await _context.Symptoms.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName));
         }
     }
 }
