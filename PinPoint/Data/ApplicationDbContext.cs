@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PinPoint.Migrations;
 
 namespace PinPoint.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -18,6 +19,12 @@ namespace PinPoint.Data
         {
             base.OnModelCreating(builder);
             builder.Entity<IdentityRole>().HasData(
+                new IdentityRole
+                {
+                    Id = "b8a44de3-054d-44f4-8d22-b6c7286ce135",
+                    Name = "Patient",
+                    NormalizedName = "PATIENT"
+                },
                 new IdentityRole
                 {
                     Id = "4bf6db49-c852-409f-900f-48a83f70047b",
@@ -38,9 +45,9 @@ namespace PinPoint.Data
                 });
 
             // Hash password security
-            var hasher = new PasswordHasher<IdentityUser>();
-            builder.Entity<IdentityUser>()
-                .HasData(new IdentityUser
+            var hasher = new PasswordHasher<ApplicationUser>();
+            builder.Entity<ApplicationUser>()
+                .HasData(new ApplicationUser
                 {
                     Id = "ab3dca9e-4c1d-41e9-9c9b-b4e047cd12f4",
                     Email = "dev@pinpoint.com.au",
@@ -49,6 +56,9 @@ namespace PinPoint.Data
                     UserName = "dev@pinpoint.com.au",
                     PasswordHash = hasher.HashPassword(null, "P@ssword1"),
                     EmailConfirmed = true,
+                    FirstName = "Default",
+                    LastName = "Admin",
+                    DateOfBirth = new DateOnly(1990,09,05)
                 });
 
             // Assigns default user Developer role
