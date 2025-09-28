@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PinPoint.Migrations;
 
@@ -25,6 +26,7 @@ namespace PinPoint.Areas.Identity.Pages.Account
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
@@ -35,6 +37,7 @@ namespace PinPoint.Areas.Identity.Pages.Account
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -42,6 +45,7 @@ namespace PinPoint.Areas.Identity.Pages.Account
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
+            this._roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
         }
@@ -51,7 +55,9 @@ namespace PinPoint.Areas.Identity.Pages.Account
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel Input { get; set; } = new InputModel();
+
+        public string[] RoleNames { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -112,13 +118,24 @@ namespace PinPoint.Areas.Identity.Pages.Account
             [DataType(DataType.Date)]
             [Display(Name = "Date Of Birth")]
             public DateOnly DateOfBirth { get; set; }
+
+            [Required]
+            public string RoleName { get; set; }
         }
 
-
+        // Load external logins & roles then order them
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            var roleOrder = new [] { "Manager", "Employee", "Patient" };
+            var roles = await _roleManager.Roles
+                .Select(q => q.Name)
+                .Where(q => q != "Developer")
+                .ToArrayAsync();
+            RoleNames = roles
+                .OrderBy(q => Array.IndexOf(roleOrder, q))
+                .ToArray();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -140,8 +157,25 @@ namespace PinPoint.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+                    
+                    if (Input.RoleName == "Developer")
+                    {
+                        await _userManager.AddToRolesAsync(user, ["Developer", "Employee"]);
+                    }
+                    else if (Input.RoleName == "Manager")
+                    {
+                        await _userManager.AddToRolesAsync(user, ["Manager", "Employee"]);
+                    }
+                    else if (Input.RoleName == "Employee")
+                    {
+                        await _userManager.AddToRoleAsync(user, "Employee");
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, "Patient");
+                    }
 
-                    var userId = await _userManager.GetUserIdAsync(user);
+                        var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -170,6 +204,14 @@ namespace PinPoint.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
+            var roleOrder = new [] { "Manager", "Employee", "Patient" };
+            var roles = await _roleManager.Roles
+                .Select(q => q.Name)
+                .Where(q => q != "Developer")
+                .ToArrayAsync();
+            RoleNames = roles
+                .OrderBy(q => Array.IndexOf(roleOrder, q))
+                .ToArray();
             return Page();
         }
 
