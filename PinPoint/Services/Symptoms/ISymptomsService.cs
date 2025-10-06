@@ -1,6 +1,6 @@
 ﻿using PinPoint.Models.Symptoms;
 
-namespace PinPoint.Services
+namespace PinPoint.Services.Symptoms
 {
     public interface ISymptomsService
     {

@@ -1,0 +1,70 @@
+﻿@using PinPoint.Models.PainEntries
+@model PainEntryEditVM
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>PainEntry</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="EntryDate" class="control-label"></label>
+                <input asp-for="EntryDate" class="form-control" />
+                <span asp-validation-for="EntryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EntryTime" class="control-label"></label>
+                <input asp-for="EntryTime" class="form-control" />
+                <span asp-validation-for="EntryTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PainIntensity" class="control-label"></label>
+                <input asp-for="PainIntensity" class="form-control" />
+                <span asp-validation-for="PainIntensity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PainDescription" class="control-label"></label>
+                <input asp-for="PainDescription" class="form-control" />
+                <span asp-validation-for="PainDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ActivitiesBeforePain" class="control-label"></label>
+                <input asp-for="ActivitiesBeforePain" class="form-control" />
+                <span asp-validation-for="ActivitiesBeforePain" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReliefMethodsTried" class="control-label"></label>
+                <input asp-for="ReliefMethodsTried" class="form-control" />
+                <span asp-validation-for="ReliefMethodsTried" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReliefEffectiveness" class="control-label"></label>
+                <input asp-for="ReliefEffectiveness" class="form-control" />
+                <span asp-validation-for="ReliefEffectiveness" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdditionalNotes" class="control-label"></label>
+                <input asp-for="AdditionalNotes" class="form-control" />
+                <span asp-validation-for="AdditionalNotes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

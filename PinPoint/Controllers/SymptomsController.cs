@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PinPoint.Data;
 using PinPoint.Models.Symptoms;
-using PinPoint.Services;
+using PinPoint.Services.Symptoms;
 
 namespace PinPoint.Controllers
 {
+    [Authorize(Roles ="Developer")]
     public class SymptomsController(ISymptomsService symptomsService) : Controller
     {
         private readonly ISymptomsService _symptomsService = symptomsService;

@@ -8,6 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Identity\Pages\Account\NewFolder\**" />
+    <Content Remove="Areas\Identity\Pages\Account\NewFolder\**" />
+    <EmbeddedResource Remove="Areas\Identity\Pages\Account\NewFolder\**" />
+    <None Remove="Areas\Identity\Pages\Account\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\Locations\LocationDeleteVM.cs" />
+    <Compile Remove="Models\PainEntries\PainEntryDeleteVM.cs" />
+    <Compile Remove="Models\Symptoms\SymptomDeleteVM.cs" />
+    <Compile Remove="Models\Triggers\TriggerDeleteVM.cs" />
+    <Compile Remove="Services\PainEntries\PainDurationEnum.cs" />
+    <Compile Remove="Services\PainEntries\PainIntensityEnum.cs" />
+    <Compile Remove="Services\PainEntries\PainReliefEnum.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.19" />

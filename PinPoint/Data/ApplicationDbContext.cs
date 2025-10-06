@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PinPoint.Migrations;
+using System.Reflection.Emit;
+using PinPoint.Data;
 
 namespace PinPoint.Data
 {
@@ -13,6 +15,9 @@ namespace PinPoint.Data
         }
 
         public DbSet<Symptom> Symptoms { get; set; }
+        public DbSet<Trigger> Trigger { get; set; }
+        public DbSet<PainEntry> PainEntries { get; set; }
+        public DbSet<Location> Locations { get; set; }
 
         // Initialise DB with roles
         protected override void OnModelCreating(ModelBuilder builder)
@@ -68,6 +73,48 @@ namespace PinPoint.Data
                     RoleId = "3f720a9f-e689-41fb-b3a9-52a07410bf5f",
                     UserId = "ab3dca9e-4c1d-41e9-9c9b-b4e047cd12f4"
                 });
+
+            // Pain Entry Triggers Junction Table
+            builder.Entity<PainEntryTrigger>()
+                .HasKey(q => new { q.PainEntryId, q.TriggerId });
+
+            builder.Entity<PainEntryTrigger>()
+                .HasOne(q => q.PainEntry)
+                .WithMany(q => q.PainEntryTriggers)
+                .HasForeignKey(q => q.PainEntryId);
+
+            builder.Entity<PainEntryTrigger>()
+                .HasOne(q => q.Trigger)
+                .WithMany(q => q.PainEntryTriggers)
+                .HasForeignKey(q => q.TriggerId);
+
+            // Pain Entry Symptoms Junction Table
+            builder.Entity<PainEntrySymptom>()
+                .HasKey(q => new { q.PainEntryId, q.SymptomId });
+
+            builder.Entity<PainEntrySymptom>()
+                .HasOne(q => q.PainEntry)
+                .WithMany(q => q.PainEntrySymptoms)
+                .HasForeignKey(q => q.PainEntryId);
+
+            builder.Entity<PainEntrySymptom>()
+                .HasOne(q => q.Symptom)
+                .WithMany(q => q.PainEntrySymptoms)
+                .HasForeignKey(q => q.SymptomId);
+
+            // Pain Entry Locations Junction Table
+            builder.Entity<PainEntryLocation>()
+                .HasKey(q => new { q.PainEntryId, q.LocationId });
+
+            builder.Entity<PainEntryLocation>()
+                .HasOne(q => q.PainEntry)
+                .WithMany(q => q.PainEntryLocations)
+                .HasForeignKey(q => q.PainEntryId);
+
+            builder.Entity<PainEntryLocation>()
+                .HasOne(q => q.Location)
+                .WithMany(q => q.PainEntryLocations)
+                .HasForeignKey(q => q.LocationId);
         }
     }
 }

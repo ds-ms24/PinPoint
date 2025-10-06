@@ -7,7 +7,7 @@
 namespace PinPoint.Migrations
 {
     /// <inheritdoc />
-    public partial class init_user_and_roles : Migration
+    public partial class InitUserAndRoles : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

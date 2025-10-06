@@ -1,9 +1,9 @@
 ﻿namespace PinPoint.Data
 {
-    public class Symptom
+    public class Symptom : BaseEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; }
-        public int NumberOfDays { get; set; }
+
+        public ICollection<PainEntrySymptom> PainEntrySymptoms { get; set; }
     }
 }

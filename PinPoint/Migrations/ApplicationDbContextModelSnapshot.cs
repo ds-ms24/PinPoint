@@ -191,6 +191,109 @@ namespace PinPoint.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PinPoint.Data.Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActivitiesBeforePain")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AdditionalNotes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("EntryTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("PainDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PainIntensity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReliefEffectiveness")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReliefMethodsTried")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PainEntries");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntryLocation", b =>
+                {
+                    b.Property<int>("PainEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PainEntryId", "LocationId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("PainEntryLocation");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntrySymptom", b =>
+                {
+                    b.Property<int>("PainEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SymptomId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PainEntryId", "SymptomId");
+
+                    b.HasIndex("SymptomId");
+
+                    b.ToTable("PainEntrySymptom");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntryTrigger", b =>
+                {
+                    b.Property<int>("PainEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TriggerId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PainEntryId", "TriggerId");
+
+                    b.HasIndex("TriggerId");
+
+                    b.ToTable("PainEntryTrigger");
+                });
+
             modelBuilder.Entity("PinPoint.Data.Symptom", b =>
                 {
                     b.Property<int>("Id")
@@ -203,12 +306,26 @@ namespace PinPoint.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("NumberOfDays")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("Symptoms");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.Trigger", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Trigger");
                 });
 
             modelBuilder.Entity("PinPoint.Migrations.ApplicationUser", b =>
@@ -290,7 +407,7 @@ namespace PinPoint.Migrations
                         {
                             Id = "ab3dca9e-4c1d-41e9-9c9b-b4e047cd12f4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2b2b9b9a-aa86-4ccf-a74e-07819886e52d",
+                            ConcurrencyStamp = "2691a172-afd0-43a2-8fc6-34a5d1f0d7c3",
                             DateOfBirth = new DateOnly(1990, 9, 5),
                             Email = "dev@pinpoint.com.au",
                             EmailConfirmed = true,
@@ -299,9 +416,9 @@ namespace PinPoint.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "DEV@PINPOINT.COM.AU",
                             NormalizedUserName = "DEV@PINPOINT.COM.AU",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIQcK4k/MJdTFyUciLs3VCTHyOfBGDA2Saj71txaOqU/7xH3e+tH5E4i4pie2i/c8g==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPNcCKSwf9P7mYamfNfSoNC21zpcGdUM/IXASPoD97jfIZqfB0LxDBDKzV9lvVlRmQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "803dd53f-1fe8-43c8-b3fe-b726d785c0e0",
+                            SecurityStamp = "2598b8c0-1197-4442-a829-171055721d40",
                             TwoFactorEnabled = false,
                             UserName = "dev@pinpoint.com.au"
                         });
@@ -356,6 +473,87 @@ namespace PinPoint.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntryLocation", b =>
+                {
+                    b.HasOne("PinPoint.Data.Location", "Location")
+                        .WithMany("PainEntryLocations")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PinPoint.Data.PainEntry", "PainEntry")
+                        .WithMany("PainEntryLocations")
+                        .HasForeignKey("PainEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("PainEntry");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntrySymptom", b =>
+                {
+                    b.HasOne("PinPoint.Data.PainEntry", "PainEntry")
+                        .WithMany("PainEntrySymptoms")
+                        .HasForeignKey("PainEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PinPoint.Data.Symptom", "Symptom")
+                        .WithMany("PainEntrySymptoms")
+                        .HasForeignKey("SymptomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PainEntry");
+
+                    b.Navigation("Symptom");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntryTrigger", b =>
+                {
+                    b.HasOne("PinPoint.Data.PainEntry", "PainEntry")
+                        .WithMany("PainEntryTriggers")
+                        .HasForeignKey("PainEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PinPoint.Data.Trigger", "Trigger")
+                        .WithMany("PainEntryTriggers")
+                        .HasForeignKey("TriggerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PainEntry");
+
+                    b.Navigation("Trigger");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.Location", b =>
+                {
+                    b.Navigation("PainEntryLocations");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.PainEntry", b =>
+                {
+                    b.Navigation("PainEntryLocations");
+
+                    b.Navigation("PainEntrySymptoms");
+
+                    b.Navigation("PainEntryTriggers");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.Symptom", b =>
+                {
+                    b.Navigation("PainEntrySymptoms");
+                });
+
+            modelBuilder.Entity("PinPoint.Data.Trigger", b =>
+                {
+                    b.Navigation("PainEntryTriggers");
                 });
 #pragma warning restore 612, 618
         }

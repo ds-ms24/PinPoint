@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PinPoint.Common;
 using PinPoint.Migrations;
 
 namespace PinPoint.Areas.Identity.Pages.Account
@@ -158,17 +159,21 @@ namespace PinPoint.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
                     
-                    if (Input.RoleName == "Developer")
+                    if (Input.RoleName == Roles.Developer)
                     {
                         await _userManager.AddToRolesAsync(user, ["Developer", "Employee"]);
                     }
-                    else if (Input.RoleName == "Manager")
+                    else if (Input.RoleName == Roles.Manager)
                     {
                         await _userManager.AddToRolesAsync(user, ["Manager", "Employee"]);
                     }
-                    else if (Input.RoleName == "Employee")
+                    else if (Input.RoleName == Roles.Employee)
                     {
                         await _userManager.AddToRoleAsync(user, "Employee");
+                    }
+                    else if (Input.RoleName == Roles.Patient)
+                    {
+                        await _userManager.AddToRoleAsync(user, "Patient");
                     }
                     else
                     {

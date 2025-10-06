@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PinPoint.Data;
 using PinPoint.Models.Symptoms;
 
-namespace PinPoint.Services;
+namespace PinPoint.Services.Symptoms;
 
 public class SymptomsService(ApplicationDbContext context, IMapper mapper) : ISymptomsService
 {

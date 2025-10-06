@@ -3,8 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using PinPoint.Data;
 using System.Reflection;
 using AutoMapper;
-using PinPoint.Services;
 using PinPoint.Migrations;
+using PinPoint.Services.Symptoms;
+using PinPoint.Services.PainEntries;
+using PinPoint.Services.Locations;
+using PinPoint.Services.Triggers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +17,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddScoped<ITriggersService, TriggersService>();
+builder.Services.AddScoped<ILocationsService, LocationsService>();
+builder.Services.AddScoped<IPainEntriesService, PainEntriesService>();
 builder.Services.AddScoped<ISymptomsService, SymptomsService>();
+
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)

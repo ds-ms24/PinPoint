@@ -1,0 +1,78 @@
+﻿@using PinPoint.Models.PainEntries
+@model IEnumerable<PainEntryReadOnlyVM>
+
+@{
+    ViewData["Title"] = "Pain Entry";
+}
+
+<h1>Daily Pain Entry</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.EntryDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EntryTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PainIntensity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PainDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ActivitiesBeforePain)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReliefMethodsTried)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReliefEffectiveness)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AdditionalNotes)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.EntryDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EntryTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PainIntensity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PainDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ActivitiesBeforePain)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReliefMethodsTried)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReliefEffectiveness)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AdditionalNotes)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
