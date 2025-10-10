@@ -14,14 +14,14 @@ namespace PinPoint.Services.Triggers
 
         public async Task<List<TriggerReadOnlyVM>> GetAll()
         {
-            var data = await _context.Trigger.ToListAsync();
+            var data = await _context.Triggers.ToListAsync();
             var viewData = _mapper.Map<List<TriggerReadOnlyVM>>(data);
             return viewData;
         }
 
         public async Task<T> Get<T>(int id) where T : class
         {
-            var data = await _context.Trigger.FirstOrDefaultAsync(x => x.Id == id);
+            var data = await _context.Triggers.FirstOrDefaultAsync(x => x.Id == id);
             if (data == null)
             {
                 return null;
@@ -47,7 +47,7 @@ namespace PinPoint.Services.Triggers
 
         public async Task Remove(int id)
         {
-            var data = await _context.Trigger.FirstOrDefaultAsync(x => x.Id == id);
+            var data = await _context.Triggers.FirstOrDefaultAsync(x => x.Id == id);
             if (data != null)
             {
                 _context.Remove(data);
@@ -57,19 +57,19 @@ namespace PinPoint.Services.Triggers
 
         public bool TriggerExists(int id)
         {
-            return _context.Trigger.Any(e => e.Id == id);
+            return _context.Triggers.Any(e => e.Id == id);
         }
 
         public async Task<bool> CheckIfTriggerNameExistsAsync(string name)
         {
             var lowercaseName = name.ToLower();
-            return await _context.Trigger.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName));
+            return await _context.Triggers.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName));
         }
 
         public async Task<bool> CheckIfTriggerNameExistsForEditAsync(TriggerEditVM triggerEdit)
         {
             var lowercaseName = triggerEdit.Name.ToLower();
-            return await _context.Trigger.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName) && q.Id != triggerEdit.Id);
+            return await _context.Triggers.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName) && q.Id != triggerEdit.Id);
         }
     }
 }

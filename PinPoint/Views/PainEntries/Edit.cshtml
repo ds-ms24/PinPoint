@@ -2,12 +2,12 @@
 @model PainEntryEditVM
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Pain Entry";
 }
 
-<h1>Edit</h1>
+<h1>Amend Pain Entry</h1>
 
-<h4>PainEntry</h4>
+<h5>Make changes to the details of your pain entry.</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -15,24 +15,66 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="EntryDate" class="control-label"></label>
-                <input asp-for="EntryDate" class="form-control" />
+                <label asp-for="EntryDate" class="control-label">Entry Date</label>
+                <input asp-for="EntryDate" class="form-control-plaintext" readonly tabindex="-1" style="pointer-events:none;" />
                 <span asp-validation-for="EntryDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EntryTime" class="control-label"></label>
-                <input asp-for="EntryTime" class="form-control" />
+                <label asp-for="EntryTime" class="control-label">Entry Time</label>
+                <input asp-for="EntryTime" class="form-control-plaintext" readonly tabindex="-1" style="pointer-events:none;" />
                 <span asp-validation-for="EntryTime" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="SymptomId" class="control-label">Select Existing Symptom</label>
+                <select asp-for="SymptomId" class="form-control" id="symptomDropdown" asp-items="ViewBag.Symptoms">
+                </select>
+                <span asp-validation-for="SymptomId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewSymptomName" class="control-label">Add New Symptom</label>
+                <input asp-for="NewSymptomName" class="form-control" id="newSymptomInput"
+                       placeholder="Enter a new symptom name" />
+                <span asp-validation-for="NewSymptomName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="PainIntensity" class="control-label"></label>
-                <input asp-for="PainIntensity" class="form-control" />
+                <select asp-for="PainIntensity" class="form-control" id="painIntensitySelect">
+                    <option value="0">0 - No Pain</option>
+                    <option value="1">1 - Minimal</option>
+                    <option value="2">2 - Mild</option>
+                    <option value="3">3 - Uncomfortable</option>
+                    <option value="4">4 - Moderate</option>
+                    <option value="5">5 - Distracting</option>
+                    <option value="6">6 - Distressing</option>
+                    <option value="7">7 - Unmanagable</option>
+                    <option value="8">8 - Intense</option>
+                    <option value="9">9 - Severe</option>
+                    <option value="10">10 - Unable To Move</option>
+                </select>
+                <div id="painIntensityDescription" class="form-text text-muted"></div>
                 <span asp-validation-for="PainIntensity" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="PainDescription" class="control-label"></label>
                 <input asp-for="PainDescription" class="form-control" />
                 <span asp-validation-for="PainDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DurationMinutes" class="control-label"></label>
+                <select asp-for="DurationMinutes" class="form-control">
+                    <option value="0">Less than 1 minute</option>
+                    <option value="1">1 - 5 minutes</option>
+                    <option value="2">5 - 15 minutes</option>
+                    <option value="3">15 - 30 minutes</option>
+                    <option value="4">30 - 60 minutes</option>
+                    <option value="5">1 - 2 hours</option>
+                    <option value="6">2 - 4 hours</option>
+                    <option value="7">4 - 8 hours</option>
+                    <option value="8">8 - 12 hours</option>
+                    <option value="9">More than 12 hours</option>
+                    <option value="10">All day (constant)</option>
+                </select>
+                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ActivitiesBeforePain" class="control-label"></label>
@@ -46,7 +88,20 @@
             </div>
             <div class="form-group">
                 <label asp-for="ReliefEffectiveness" class="control-label"></label>
-                <input asp-for="ReliefEffectiveness" class="form-control" />
+                <select asp-for="ReliefEffectiveness" class="form-control" id="reliefEffectivenessSelect">
+                    <option value="0">0 - No Relief</option>
+                    <option value="1">1 - Almost none</option>
+                    <option value="2">2 - Very slight</option>
+                    <option value="3">3 - Slight</option>
+                    <option value="4">4 - Mild</option>
+                    <option value="5">5 - Moderate</option>
+                    <option value="6">6 - Noticeable</option>
+                    <option value="7">7 - Significant</option>
+                    <option value="8">8 - Strong</option>
+                    <option value="9">9 - Near complete</option>
+                    <option value="10">10 - Complete</option>
+                </select>
+                <div id="reliefEffectivenessDescription" class="form-text text-muted"></div>
                 <span asp-validation-for="ReliefEffectiveness" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -66,5 +121,54 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const painDescriptions = {
+            0: "I have no pain",
+            1: "My pain is hardly noticeable",
+            2: "I have a low level of pain. I am aware of my pain only when I pay attention to it.",
+            3: "My pain bothers me but I can ignore it most of the time.",
+            4: "I am constantly aware of my pain but I can continue most activities.",
+            5: "I think about my pain most of the time. I cannot do some of the activities I need to do each day because of the pain.",
+            6: "I think about my pain all of the time. I give up many activities because of my pain.",
+            7: "I am in pain all the time. It keeps me from doing most activities.",
+            8: "My pain is so severe that it is hard to think of anything else. Talking and listening are difficult.",
+            9: "My pain is all that I can think about. I can barely talk or move because of the pain.",
+            10: "I am in bed and can't move due to my pain. I need someone to take me to the emergency room to get help for my pain."
+        };
+
+        const reliefDescriptions = {
+            0: "I have no relief, my pain is unchanged.",
+            1: "I have hardly any relief; my pain is barely less noticeable.",
+            2: "I have a low level of relief. I am aware of the relief only when I pay attention to it.",
+            3: "My relief is present but my pain still bothers me most of the time.",
+            4: "I am constantly aware of my relief, but my pain still prevents some activities.",
+            5: "I think about my relief most of the time. I can now do some of the activities I need to do each day.",
+            6: "I think about my relief all the time. I can return to many activities because my pain is much less.",
+            7: "I have significant relief most of the time. It allows me to do most activities.",
+            8: "My relief is so great that it is easy to think of other things. My pain is only a slight discomfort.",
+            9: "I have almost complete relief. My pain is barely noticeable and I can move freely.",
+            10: "I have complete relief and feel no pain at all."
+        };
+
+        function updateDescription(selectId, descId, descriptions) {
+            const select = document.getElementById(selectId);
+            const descDiv = document.getElementById(descId);
+            const value = select.value;
+            descDiv.textContent = descriptions[value] || '';
+        }
+
+        document.getElementById('painIntensitySelect').addEventListener('change', function() {
+            updateDescription('painIntensitySelect', 'painIntensityDescription', painDescriptions);
+        });
+        document.getElementById('reliefEffectivenessSelect').addEventListener('change', function() {
+            updateDescription('reliefEffectivenessSelect', 'reliefEffectivenessDescription', reliefDescriptions);
+        });
+
+        // Show description for initial values on page load
+        updateDescription('painIntensitySelect', 'painIntensityDescription', painDescriptions);
+        updateDescription('reliefEffectivenessSelect', 'reliefEffectivenessDescription', reliefDescriptions);
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

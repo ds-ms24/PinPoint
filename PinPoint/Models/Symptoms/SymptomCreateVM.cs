@@ -4,7 +4,9 @@ namespace PinPoint.Models.Symptoms;
 
 public class SymptomCreateVM
 {
-    [Display(Name="Symptom Name")]
-    public string Name { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Symptom name is required")]
+    [Display(Name = "Symptom Name")]
+    [MaxLength(100, ErrorMessage = "Symptom name cannot exceed 100 characters")]
+    public string Name { get; set; }
 
 }

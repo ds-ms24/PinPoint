@@ -6,5 +6,7 @@ namespace PinPoint.Data
     {
         public string Name { get; set; } = string.Empty;
         public ICollection<PainEntryLocation> PainEntryLocations { get; set; }
+        public virtual ICollection<PainEntry> PainEntries { get; set; } = new List<PainEntry>();
+
     }
 }

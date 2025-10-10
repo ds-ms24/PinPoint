@@ -8,7 +8,7 @@
 <h1>Daily Pain Entry</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Add New Pain Entry</a>
 </p>
 <table class="table">
     <thead>
@@ -18,6 +18,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EntryTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SymptomName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PainIntensity)
@@ -48,6 +51,16 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.EntryTime)
+            </td>
+            <td>
+                @if (!string.IsNullOrWhiteSpace(item.SymptomName))
+                {
+                    <span class="badge bg-secondary">@item.SymptomName</span>
+                }
+                else
+                {
+                    <span class="text-muted">—</span>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PainIntensity)

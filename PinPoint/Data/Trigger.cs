@@ -6,6 +6,8 @@
 
         public ICollection<PainEntryTrigger> PainEntryTriggers { get; set; }
 
+        public virtual ICollection<PainEntry> PainEntries { get; set; } = new List<PainEntry>();
+
 
     }
 }

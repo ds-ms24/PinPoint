@@ -14,28 +14,34 @@ namespace PinPoint.Services.PainEntries
 
         public async Task<List<PainEntryReadOnlyVM>> GetAll()
         {
-            var data = await _context.PainEntries.ToListAsync();
-            var viewData = _mapper.Map<List<PainEntryReadOnlyVM>>(data);
-            return viewData;
+            var painEntries = await _context.PainEntries
+                .Include(p => p.Symptom)
+                .ToListAsync();
+            
+        return _mapper.Map<List<PainEntryReadOnlyVM>>(painEntries);
         }
 
-        public async Task<T> Get<T>(int id) where T : class
+        public async Task<T?> Get<T>(int id) where T : class
         {
-            var data = await _context.PainEntries.FirstOrDefaultAsync(x => x.Id == id);
-            if (data == null)
-            {
-                return null;
-            }
+            var painEntry = await _context.PainEntries
+                .Include(q => q.Symptom)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            var viewData = _mapper.Map<T>(data);
-            return viewData;
+            if (painEntry == null)
+                return null;
+
+            return _mapper.Map<T>(painEntry);
         }
 
         public async Task Edit(PainEntryEditVM model)
         {
-            var painEntry = _mapper.Map<PainEntry>(model);
-            _context.Update(painEntry);
-            await _context.SaveChangesAsync();
+            var painEntry = await _context.PainEntries.FindAsync(model.Id);
+            if (painEntry != null)
+            {
+                _mapper.Map(model, painEntry);
+                _context.Update(painEntry);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task Create(PainEntryCreateVM model)
@@ -47,10 +53,10 @@ namespace PinPoint.Services.PainEntries
 
         public async Task Remove(int id)
         {
-            var data = await _context.PainEntries.FirstOrDefaultAsync(x => x.Id == id);
-            if (data != null)
+            var painEntry = await _context.PainEntries.FindAsync(id);
+            if (painEntry != null)
             {
-                _context.Remove(data);
+                _context.PainEntries.Remove(painEntry);
                 await _context.SaveChangesAsync();
             }
         }

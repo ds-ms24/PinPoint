@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PinPoint.Data;
@@ -11,9 +12,11 @@ using PinPoint.Data;
 namespace PinPoint.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251008131519_AddSymptomRelationship")]
+    partial class AddSymptomRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,9 +233,6 @@ namespace PinPoint.Migrations
                     b.Property<TimeOnly>("EntryTime")
                         .HasColumnType("time without time zone");
 
-                    b.Property<int?>("LocationId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("PainDescription")
                         .IsRequired()
                         .HasColumnType("text");
@@ -250,16 +250,9 @@ namespace PinPoint.Migrations
                     b.Property<int?>("SymptomId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TriggerId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
-
                     b.HasIndex("SymptomId");
-
-                    b.HasIndex("TriggerId");
 
                     b.ToTable("PainEntries");
                 });
@@ -425,7 +418,7 @@ namespace PinPoint.Migrations
                         {
                             Id = "ab3dca9e-4c1d-41e9-9c9b-b4e047cd12f4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1351aacf-35d7-4f08-8742-6b5bd6fe740a",
+                            ConcurrencyStamp = "58280577-9848-4f4f-b533-b36d55f157f9",
                             DateOfBirth = new DateOnly(1990, 9, 5),
                             Email = "dev@pinpoint.com.au",
                             EmailConfirmed = true,
@@ -434,9 +427,9 @@ namespace PinPoint.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "DEV@PINPOINT.COM.AU",
                             NormalizedUserName = "DEV@PINPOINT.COM.AU",
-                            PasswordHash = "AQAAAAIAAYagAAAAELs9ETTPRQssgIcAUD0ULVEtHiYnNyG+wyhsApDE4NGCrUm9BbrEK7JOunU9Cvyu7A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPYopqTK0wL7+vXpRNQ0yHsKxo3QqkMaslr+wjB55KnYH2RAC8zvpyrBAorRm7jBog==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b1ba0d75-55f3-4630-b6d4-eca119173efd",
+                            SecurityStamp = "205fce75-16c0-4774-9bc1-dc26c0c1251e",
                             TwoFactorEnabled = false,
                             UserName = "dev@pinpoint.com.au"
                         });
@@ -495,23 +488,11 @@ namespace PinPoint.Migrations
 
             modelBuilder.Entity("PinPoint.Data.PainEntry", b =>
                 {
-                    b.HasOne("PinPoint.Data.Location", "Location")
-                        .WithMany("PainEntries")
-                        .HasForeignKey("LocationId");
-
                     b.HasOne("PinPoint.Data.Symptom", "Symptom")
                         .WithMany("PainEntries")
                         .HasForeignKey("SymptomId");
 
-                    b.HasOne("PinPoint.Data.Trigger", "Trigger")
-                        .WithMany("PainEntries")
-                        .HasForeignKey("TriggerId");
-
-                    b.Navigation("Location");
-
                     b.Navigation("Symptom");
-
-                    b.Navigation("Trigger");
                 });
 
             modelBuilder.Entity("PinPoint.Data.PainEntryLocation", b =>
@@ -573,8 +554,6 @@ namespace PinPoint.Migrations
 
             modelBuilder.Entity("PinPoint.Data.Location", b =>
                 {
-                    b.Navigation("PainEntries");
-
                     b.Navigation("PainEntryLocations");
                 });
 
@@ -596,8 +575,6 @@ namespace PinPoint.Migrations
 
             modelBuilder.Entity("PinPoint.Data.Trigger", b =>
                 {
-                    b.Navigation("PainEntries");
-
                     b.Navigation("PainEntryTriggers");
                 });
 #pragma warning restore 612, 618

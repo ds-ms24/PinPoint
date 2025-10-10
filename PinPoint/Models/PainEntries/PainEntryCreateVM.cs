@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations;
 namespace PinPoint.Models.PainEntry
 {
     public class PainEntryCreateVM
-    {   
+    {
+
         [Display(Name = "Entry Date")]
         [DataType(DataType.Date)]
         public DateOnly EntryDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
@@ -17,6 +18,28 @@ namespace PinPoint.Models.PainEntry
         [Display(Name = "Pain Intensity (0-10)")]
         [Range(0, 10, ErrorMessage = "Pain intensity must be between 0 and 10")]
         public int PainIntensity { get; set; }
+
+        [Display(Name = "Symptom")]
+        public int? SymptomId { get; set; }
+    
+        [Display(Name = "New Symptom")]
+        [MaxLength(100, ErrorMessage = "Symptom name cannot exceed 100 characters")]
+        public string? NewSymptomName { get; set; }
+
+        [Display(Name = "Location")]
+        public int? LocationId { get; set; }
+    
+        [Display(Name = "New Location")]
+        [MaxLength(50, ErrorMessage = "Location name cannot exceed 50 characters")]
+        public string? NewLocationName { get; set; }
+
+        [Display(Name = "Trigger")]
+        public int? TriggerId { get; set; }
+    
+        [Display(Name = "New Trigger")]
+        [MaxLength(50, ErrorMessage = "Trigger name cannot exceed 50 characters")]
+        public string? NewTriggerName { get; set; }
+
 
         [Display(Name = "Pain Description")]
         [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters")]

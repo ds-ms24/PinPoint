@@ -15,7 +15,7 @@ namespace PinPoint.Data
         }
 
         public DbSet<Symptom> Symptoms { get; set; }
-        public DbSet<Trigger> Trigger { get; set; }
+        public DbSet<Trigger> Triggers { get; set; }
         public DbSet<PainEntry> PainEntries { get; set; }
         public DbSet<Location> Locations { get; set; }
 
@@ -100,7 +100,8 @@ namespace PinPoint.Data
             builder.Entity<PainEntrySymptom>()
                 .HasOne(q => q.Symptom)
                 .WithMany(q => q.PainEntrySymptoms)
-                .HasForeignKey(q => q.SymptomId);
+                .HasForeignKey(q => q.SymptomId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Pain Entry Locations Junction Table
             builder.Entity<PainEntryLocation>()
@@ -115,6 +116,10 @@ namespace PinPoint.Data
                 .HasOne(q => q.Location)
                 .WithMany(q => q.PainEntryLocations)
                 .HasForeignKey(q => q.LocationId);
+
+            builder.Entity<Symptom>()
+                .HasIndex(q => q.Name)
+                .IsUnique();
         }
     }
 }
