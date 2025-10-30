@@ -12,5 +12,6 @@ namespace PinPoint.Services.Symptoms
         Task<List<SymptomReadOnlyVM>> GetAll();
         Task Remove(int id);
         bool SymptomExists(int id);
+        Task<bool> IsSymptomInUse(int symptomId);
     }
 }

@@ -12,5 +12,6 @@ namespace PinPoint.Services.Locations
         Task<List<LocationReadOnlyVM>> GetAll();
         bool LocationExists(int id);
         Task Remove(int id);
+        Task<bool> IsLocationInUse(int locationId);
     }
 }

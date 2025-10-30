@@ -12,5 +12,7 @@ namespace PinPoint.Services.Triggers
         Task<List<TriggerReadOnlyVM>> GetAll();
         bool TriggerExists(int id);
         Task Remove(int id);
+
+        Task<bool> IsTriggerInUse(int triggerId);
     }
 }

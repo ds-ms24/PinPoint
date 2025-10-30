@@ -24,6 +24,45 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EntryTime)
         </dd>
+        <dd class="col-sm-2 fw-bold">
+            @Html.DisplayNameFor(model => model.SymptomNames)
+        </dd>
+        <dt class="col-sm-10">
+            @if (!string.IsNullOrWhiteSpace(Model.SymptomNames))
+            {
+                <span class="badge bg-primary">@Model.SymptomNames</span>
+            }
+            else
+            {
+                <span class="text-muted">No symptom recorded</span>
+            }
+        </dt>
+        <dd class="col-sm-2 fw-bold">
+            @Html.DisplayNameFor(model => model.LocationNames)
+        </dd>
+        <dt class="col-sm-10">
+            @if (!string.IsNullOrWhiteSpace(Model.LocationNames))
+            {
+                <span class="badge bg-primary">@Model.LocationNames</span>
+            }
+            else
+            {
+                <span class="text-muted">No location recorded</span>
+            }
+        </dt>
+        <dd class="col-sm-2 fw-bold">
+            @Html.DisplayNameFor(model => model.TriggerNames)
+        </dd>
+        <dt class="col-sm-10">
+            @if (!string.IsNullOrWhiteSpace(Model.TriggerNames))
+            {
+                <span class="badge bg-primary">@Model.TriggerNames</span>
+            }
+            else
+            {
+                <span class="text-muted">No trigger recorded</span>
+            }
+        </dt>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PainIntensity)
         </dt>

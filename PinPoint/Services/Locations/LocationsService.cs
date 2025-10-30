@@ -58,7 +58,7 @@ public class LocationsService(ApplicationDbContext context, IMapper mapper) : IL
 
     public bool LocationExists(int id)
     {
-        return _context.Locations.Any(e => e.Id == id);
+        return _context.Locations.Any(q => q.Id == id);
     }
 
     public async Task<bool> CheckIfLocationNameExistsAsync(string name)
@@ -71,5 +71,10 @@ public class LocationsService(ApplicationDbContext context, IMapper mapper) : IL
     {
         var lowercaseName = locationEdit.Name.ToLower();
         return await _context.Locations.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName) && q.Id != locationEdit.Id);
+    }
+
+    public async Task<bool> IsLocationInUse(int locationId)
+    {
+        return await _context.PainEntryLocation.AnyAsync(q => q.LocationId == locationId);
     }
 }

@@ -134,6 +134,13 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
+            if (await _locationsService.IsLocationInUse(id.Value))
+            {
+                TempData["Error"] = "This location is currently in use by one or more entries. " +
+                    "Please remove it from all entries before deleting.";
+                    return RedirectToAction(nameof(Index));
+            }
+
             return View(location);
         }
 
@@ -142,7 +149,15 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (await _locationsService.IsLocationInUse(id))
+            {
+                TempData["Error"] = "This location is currently in use by one or more entries. " +
+                    "Please remove it from all entries before deleting.";
+                    return RedirectToAction(nameof(Index));
+            }
+
             await _locationsService.Remove(id);
+            TempData["Success"] = "Location deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

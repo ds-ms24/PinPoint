@@ -54,7 +54,7 @@ public class SymptomsService(ApplicationDbContext context, IMapper mapper) : ISy
 
     public bool SymptomExists(int id)
     {
-        return _context.Symptoms.Any(e => e.Id == id);
+        return _context.Symptoms.Any(q => q.Id == id);
     }
     public async Task<bool> CheckIfSymptomNameExistsAsync(string name)
     {
@@ -66,5 +66,10 @@ public class SymptomsService(ApplicationDbContext context, IMapper mapper) : ISy
     {
         var lowercaseName = symptomEdit.Name.ToLower();
         return await _context.Symptoms.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName) && q.Id != symptomEdit.Id);
+    }
+
+    public async Task<bool> IsSymptomInUse(int symptomId)
+    {
+        return await _context.PainEntrySymptom.AnyAsync(q => q.SymptomId == symptomId);
     }
 }

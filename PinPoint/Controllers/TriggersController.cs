@@ -141,6 +141,13 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
+            if (await _triggersService.IsTriggerInUse(id.Value))
+            {
+                TempData["Error"] = "This trigger is currently in use by one or more entries. " +
+                    "Please remove it from all entries before deleting.";
+                    return RedirectToAction(nameof(Index));
+            }
+
             return View(trigger);
         }
 
@@ -149,7 +156,15 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (await _triggersService.IsTriggerInUse(id))
+            {
+                TempData["Error"] = "This trigger is currently in use by one or more entries. " +
+                    "Please remove it from all entries before deleting.";
+                    return RedirectToAction(nameof(Index));
+            }
+
             await _triggersService.Remove(id);
+            TempData["Success"] = "Trigger deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

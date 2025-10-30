@@ -24,42 +24,73 @@
                 <input asp-for="EntryTime" class="form-control-plaintext" readonly tabindex="-1" style="pointer-events:none;" />
                 <span asp-validation-for="EntryTime" class="text-danger"></span>
             </div>
+
+            @* SYMPTOMS *@
             <div class="form-group">
-                <label asp-for="SymptomId" class="control-label">Select Existing Symptom</label>
-                <select asp-for="SymptomId" class="form-control" id="symptomDropdown" asp-items="ViewBag.Symptoms">
-                </select>
-                <span asp-validation-for="SymptomId" class="text-danger"></span>
+                <label class="control-label">Selected Symptoms (Up to 3)</label>
+                <div id="selectedSymptomsContainer" class="mb-2" style="min-height: 30px; border: 1px solid #ced4da; border-radius: 0.25rem; padding: 0.375rem;">
+                    <span class="text-muted" id="noSymptomsText">No symptoms selected</span>
+                </div>
             </div>
             <div class="form-group">
-                <label asp-for="NewSymptomName" class="control-label">Add New Symptom</label>
+                <label asp-for="SymptomIds" class="control-label">Select Existing Symptom (Double-click to add)</label>
+                <select class="form-control" id="symptomDropdown" asp-items="ViewBag.Symptoms" size="5" style="height: auto;">
+                </select>
+                <span asp-validation-for="SymptomIds" class="text-danger"></span>
+                <span id="symptomMaxError" class="text-danger" style="display: none;">You can only select up to 3 symptoms</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewSymptomName" class="control-label">Or Add New Symptom</label>
                 <input asp-for="NewSymptomName" class="form-control" id="newSymptomInput"
-                        placeholder="Enter a new symptom name" />
+                       placeholder="Or enter a new symptom name" />
+                <span id="newSymptomMaxError" class="text-danger" style="display: none;">Cannot add new symptom: maximum of 3 already selected</span>
                 <span asp-validation-for="NewSymptomName" class="text-danger"></span>
             </div>
+
+            @* LOCATIONS *@
             <div class="form-group">
-                <label asp-for="LocationId" class="control-label">Select Existing Location</label>
-                <select asp-for="LocationId" class="form-control" id="locationDropdown" asp-items="ViewBag.Locations">
-                </select>
-                <span asp-validation-for="LocationId" class="text-danger"></span>
+                <label class="control-label">Selected Locations (Up to 3)</label>
+                <div id="selectedLocationsContainer" class="mb-2" style="min-height: 30px; border: 1px solid #ced4da; border-radius: 0.25rem; padding: 0.375rem;">
+                    <span class="text-muted" id="noLocationsText">No locations selected</span>
+                </div>
             </div>
             <div class="form-group">
-                <label asp-for="NewLocationName" class="control-label">Add New Pain Location</label>
+                <label asp-for="LocationIds" class="control-label">Select Existing Location (Double-click to add)</label>
+                <select class="form-control" id="locationDropdown" asp-items="ViewBag.Locations" size="5" style="height: auto;">
+                </select>
+                <span asp-validation-for="LocationIds" class="text-danger"></span>
+                <span id="locationMaxError" class="text-danger" style="display: none;">You can only select up to 3 locations</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewLocationName" class="control-label">Or Add New Pain Location</label>
                 <input asp-for="NewLocationName" class="form-control" id="newLocationInput"
-                       placeholder="Enter a new location" />
+                       placeholder="Or enter a new location" />
+                <span id="newLocationMaxError" class="text-danger" style="display: none;">Cannot add new location: maximum of 3 already selected</span>
                 <span asp-validation-for="NewLocationName" class="text-danger"></span>
             </div>
+
+            @* TRIGGERS *@
             <div class="form-group">
-                <label asp-for="TriggerId" class="control-label">Select Existing Trigger</label>
-                <select asp-for="TriggerId" class="form-control" id="triggerDropdown" asp-items="ViewBag.Triggers">
-                </select>
-                <span asp-validation-for="TriggerId" class="text-danger"></span>
+                <label class="control-label">Selected Triggers (Up to 3)</label>
+                <div id="selectedTriggersContainer" class="mb-2" style="min-height: 30px; border: 1px solid #ced4da; border-radius: 0.25rem; padding: 0.375rem;">
+                    <span class="text-muted" id="noTriggersText">No triggers selected</span>
+                </div>
             </div>
             <div class="form-group">
-                <label asp-for="NewTriggerName" class="control-label">Add New Pain Trigger</label>
+                <label asp-for="TriggerIds" class="control-label">Select Existing Triggers (Double-click to add)</label>
+                <select class="form-control" id="triggerDropdown" asp-items="ViewBag.Triggers" size="5" style="height: auto;">
+                </select>
+                <span asp-validation-for="TriggerIds" class="text-danger"></span>
+                <span id="triggerMaxError" class="text-danger" style="display: none;">You can only select up to 3 triggers</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewTriggerName" class="control-label">Or Add New Pain Trigger</label>
                 <input asp-for="NewTriggerName" class="form-control" id="newTriggerInput"
-                       placeholder="Enter a new trigger" />
+                       placeholder="Or enter a new trigger" />
+                <span id="newTriggerMaxError" class="text-danger" style="display: none;">Cannot add new trigger: maximum of 3 already selected</span>
                 <span asp-validation-for="NewTriggerName" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="PainIntensity" class="control-label"></label>
                 <select asp-for="PainIntensity" class="form-control" id="painIntensitySelect">
@@ -133,6 +164,9 @@
                 <input asp-for="AdditionalNotes" class="form-control" />
                 <span asp-validation-for="AdditionalNotes" class="text-danger"></span>
             </div>
+            <div id="symptomIdsContainer"></div>
+            <div id="locationIdsContainer"></div>
+            <div id="triggerIdsContainer"></div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -145,7 +179,11 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    @* DROP DOWN DESCRIPTIONS *@
     <script>
         const painDescriptions = {
             0: "I have no pain",
@@ -194,27 +232,203 @@
         updateDescription('reliefEffectivenessSelect', 'reliefEffectivenessDescription', reliefDescriptions);
     </script>
 
+    @* PRELOAD EXISTING VALUES *@
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        var existingSymptomIds = @Html.Raw(Json.Serialize(Model.SymptomIds ?? new List<int>()));
+        var existingLocationIds = @Html.Raw(Json.Serialize(Model.LocationIds ?? new List<int>()));
+        var existingTriggerIds = @Html.Raw(Json.Serialize(Model.TriggerIds ?? new List<int>()));
+    </script>
 
+    <script>
+        // Validation function to check if we can add new items
+        function validateNewItemInput(selectedMap, inputId, errorSpanId) {
+            const input = document.getElementById(inputId);
+            const errorSpan = document.getElementById(errorSpanId);
+
+            if (!input || !errorSpan) return true;
+
+            input.addEventListener('input', function() {
+                if (this.value.trim() !== '' && selectedMap.size >= 3) {
+                    errorSpan.style.display = 'block';
+                    this.setCustomValidity('Maximum selections reached');
+                } else {
+                    errorSpan.style.display = 'none';
+                    this.setCustomValidity('');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Maps and DOM references
+            const selectedSymptoms = new Map();
+            const symptomDropdown = document.getElementById('symptomDropdown');
+            const symptomsContainer = document.getElementById('selectedSymptomsContainer');
+            const noSymptomsText = document.getElementById('noSymptomsText');
+
+            const selectedLocations = new Map();
+            const locationDropdown = document.getElementById('locationDropdown');
+            const locationsContainer = document.getElementById('selectedLocationsContainer');
+            const noLocationsText = document.getElementById('noLocationsText');
+
+            const selectedTriggers = new Map();
+            const triggerDropdown = document.getElementById('triggerDropdown');
+            const triggersContainer = document.getElementById('selectedTriggersContainer');
+            const noTriggersText = document.getElementById('noTriggersText');
+
+            function updateDisplay(selectedMap, container, noItemsText, containerDivId, inputName, badgeClass) {
+                // Remove old badges
+                container.querySelectorAll(`.${badgeClass}`).forEach(badge => badge.remove());
+
+                // Get the container div for hidden inputs
+                const containerDiv = document.getElementById(containerDivId);
+                if (containerDiv) {
+                    containerDiv.innerHTML = ''; // Clear old hidden inputs
+                }
+
+                if (selectedMap.size === 0) {
+                    noItemsText.style.display = 'inline';
+                }
+                else {
+                    noItemsText.style.display = 'none';
+                    selectedMap.forEach((text, id) => {
+                        // Create badge
+                        const badge = document.createElement('span');
+                        badge.className = `badge bg-primary ${badgeClass} me-1 mb-1`;
+                        badge.style.cursor = 'pointer';
+                        badge.textContent = text + ' ×';
+                        badge.title = 'Click to remove';
+                        badge.addEventListener('click', function() {
+                            selectedMap.delete(id);
+                            updateDisplay(selectedMap, container, noItemsText, containerDivId, inputName, badgeClass);
+                        });
+                        container.appendChild(badge);
+
+                        // Create hidden input
+                        if (containerDiv) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = inputName;
+                            input.value = id;
+                            containerDiv.appendChild(input);
+                        }
+                    });
+                }
+            }
+
+            // Pre-load existing symptoms
+            if (existingSymptomIds && existingSymptomIds.length > 0) {
+                existingSymptomIds.forEach(id => {
+                    const option = Array.from(symptomDropdown.options).find(opt => opt.value == id);
+                    if (option) {
+                        selectedSymptoms.set(id.toString(), option.text);
+                    }
+                });
+                updateDisplay(selectedSymptoms, symptomsContainer, noSymptomsText, 'symptomIdsContainer', 'SymptomIds', 'symptom-badge');
+            }
+
+            // Pre-load existing locations
+            if (existingLocationIds && existingLocationIds.length > 0) {
+                existingLocationIds.forEach(id => {
+                    const option = Array.from(locationDropdown.options).find(opt => opt.value == id);
+                    if (option) {
+                        selectedLocations.set(id.toString(), option.text);
+                    }
+                });
+                updateDisplay(selectedLocations, locationsContainer, noLocationsText, 'locationIdsContainer', 'LocationIds', 'location-badge');
+            }
+
+            // Pre-load existing triggers
+            if (existingTriggerIds && existingTriggerIds.length > 0) {
+                existingTriggerIds.forEach(id => {
+                    const option = Array.from(triggerDropdown.options).find(opt => opt.value == id);
+                    if (option) {
+                        selectedTriggers.set(id.toString(), option.text);
+                    }
+                });
+                updateDisplay(selectedTriggers, triggersContainer, noTriggersText, 'triggerIdsContainer', 'TriggerIds', 'trigger-badge');
+            }
+
+            // Add validation for new item inputs
+            validateNewItemInput(selectedSymptoms, 'newSymptomInput', 'newSymptomMaxError');
+            validateNewItemInput(selectedLocations, 'newLocationInput', 'newLocationMaxError');
+            validateNewItemInput(selectedTriggers, 'newTriggerInput', 'newTriggerMaxError');
+
+            // Symptom dropdown double-click handler
+            symptomDropdown.addEventListener('dblclick', function(e) {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    const id = selectedOption.value;
+                    const text = selectedOption.text;
+                    if (selectedSymptoms.has(id)) {
+                        selectedSymptoms.delete(id);
+                        document.getElementById('symptomMaxError').style.display = 'none';
+                    } else {
+                        if (selectedSymptoms.size >= 3) {
+                            document.getElementById('symptomMaxError').style.display = 'block';
+                            return;
+                        }
+                        selectedSymptoms.set(id, text);
+                        document.getElementById('symptomMaxError').style.display = 'none';
+                    }
+                    updateDisplay(selectedSymptoms, symptomsContainer, noSymptomsText, 'symptomIdsContainer', 'SymptomIds', 'symptom-badge');
+                }
+            });
+
+            // Location dropdown double-click handler
+            locationDropdown.addEventListener('dblclick', function(e) {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    const id = selectedOption.value;
+                    const text = selectedOption.text;
+                    if (selectedLocations.has(id)) {
+                        selectedLocations.delete(id);
+                        document.getElementById('locationMaxError').style.display = 'none';
+                    } else {
+                        if (selectedLocations.size >= 3) {
+                            document.getElementById('locationMaxError').style.display = 'block';
+                            return;
+                        }
+                        selectedLocations.set(id, text);
+                        document.getElementById('locationMaxError').style.display = 'none';
+                    }
+                    updateDisplay(selectedLocations, locationsContainer, noLocationsText, 'locationIdsContainer', 'LocationIds', 'location-badge');
+                }
+            });
+
+            // Trigger dropdown double-click handler
+            triggerDropdown.addEventListener('dblclick', function(e) {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    const id = selectedOption.value;
+                    const text = selectedOption.text;
+                    if (selectedTriggers.has(id)) {
+                        selectedTriggers.delete(id);
+                        document.getElementById('triggerMaxError').style.display = 'none';
+                    } else {
+                        if (selectedTriggers.size >= 3) {
+                            document.getElementById('triggerMaxError').style.display = 'block';
+                            return;
+                        }
+                        selectedTriggers.set(id, text);
+                        document.getElementById('triggerMaxError').style.display = 'none';
+                    }
+                    updateDisplay(selectedTriggers, triggersContainer, noTriggersText, 'triggerIdsContainer', 'TriggerIds', 'trigger-badge');
+                }
+            });
+
+            // Link dropdown and text input (clear dropdown when typing)
             function linkDropdownAndInput(dropdownId, inputId) {
                 const dropdown = document.getElementById(dropdownId);
                 const input = document.getElementById(inputId);
-
                 if (!dropdown || !input) return;
-
-                dropdown.addEventListener('change', function() {
-                    if (this.value !== '') input.value = '';
-                });
-
                 input.addEventListener('input', function() {
                     if (this.value !== '') dropdown.value = '';
                 });
             }
 
-            linkDropdownAndInput('symptomDropdown', 'newSymptomInput');
             linkDropdownAndInput('locationDropdown', 'newLocationInput');
             linkDropdownAndInput('triggerDropdown', 'newTriggerInput');
+            linkDropdownAndInput('symptomDropdown', 'newSymptomInput');
         });
     </script>
 }

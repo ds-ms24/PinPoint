@@ -205,7 +205,10 @@ namespace PinPoint.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Data.PainEntry", b =>
@@ -221,8 +224,10 @@ namespace PinPoint.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("AdditionalNotes")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
 
                     b.Property<DateOnly>("EntryDate")
                         .HasColumnType("date");
@@ -261,7 +266,7 @@ namespace PinPoint.Migrations
 
                     b.HasIndex("TriggerId");
 
-                    b.ToTable("PainEntries");
+                    b.ToTable("PainEntries", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Data.PainEntryLocation", b =>
@@ -276,7 +281,7 @@ namespace PinPoint.Migrations
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("PainEntryLocation");
+                    b.ToTable("PainEntryLocation", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Data.PainEntrySymptom", b =>
@@ -291,7 +296,7 @@ namespace PinPoint.Migrations
 
                     b.HasIndex("SymptomId");
 
-                    b.ToTable("PainEntrySymptom");
+                    b.ToTable("PainEntrySymptom", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Data.PainEntryTrigger", b =>
@@ -306,7 +311,7 @@ namespace PinPoint.Migrations
 
                     b.HasIndex("TriggerId");
 
-                    b.ToTable("PainEntryTrigger");
+                    b.ToTable("PainEntryTrigger", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Data.Symptom", b =>
@@ -326,7 +331,7 @@ namespace PinPoint.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Symptoms");
+                    b.ToTable("Symptoms", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Data.Trigger", b =>
@@ -343,7 +348,10 @@ namespace PinPoint.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Triggers");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Triggers", (string)null);
                 });
 
             modelBuilder.Entity("PinPoint.Migrations.ApplicationUser", b =>
@@ -425,7 +433,7 @@ namespace PinPoint.Migrations
                         {
                             Id = "ab3dca9e-4c1d-41e9-9c9b-b4e047cd12f4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1351aacf-35d7-4f08-8742-6b5bd6fe740a",
+                            ConcurrencyStamp = "72faf963-c2f5-41b4-96c0-3fd216be915e",
                             DateOfBirth = new DateOnly(1990, 9, 5),
                             Email = "dev@pinpoint.com.au",
                             EmailConfirmed = true,
@@ -434,9 +442,9 @@ namespace PinPoint.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "DEV@PINPOINT.COM.AU",
                             NormalizedUserName = "DEV@PINPOINT.COM.AU",
-                            PasswordHash = "AQAAAAIAAYagAAAAELs9ETTPRQssgIcAUD0ULVEtHiYnNyG+wyhsApDE4NGCrUm9BbrEK7JOunU9Cvyu7A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFNP/3YFDqMYg4w+DwEI9ZpYyVofKp+u5aoKUjMV6fULTiNGeTt+aEBsUEyrUOGVng==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b1ba0d75-55f3-4630-b6d4-eca119173efd",
+                            SecurityStamp = "7fc29144-8db4-42b9-8394-3fff20303a6b",
                             TwoFactorEnabled = false,
                             UserName = "dev@pinpoint.com.au"
                         });
@@ -495,23 +503,17 @@ namespace PinPoint.Migrations
 
             modelBuilder.Entity("PinPoint.Data.PainEntry", b =>
                 {
-                    b.HasOne("PinPoint.Data.Location", "Location")
+                    b.HasOne("PinPoint.Data.Location", null)
                         .WithMany("PainEntries")
                         .HasForeignKey("LocationId");
 
-                    b.HasOne("PinPoint.Data.Symptom", "Symptom")
+                    b.HasOne("PinPoint.Data.Symptom", null)
                         .WithMany("PainEntries")
                         .HasForeignKey("SymptomId");
 
-                    b.HasOne("PinPoint.Data.Trigger", "Trigger")
+                    b.HasOne("PinPoint.Data.Trigger", null)
                         .WithMany("PainEntries")
                         .HasForeignKey("TriggerId");
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Symptom");
-
-                    b.Navigation("Trigger");
                 });
 
             modelBuilder.Entity("PinPoint.Data.PainEntryLocation", b =>
@@ -544,7 +546,7 @@ namespace PinPoint.Migrations
                     b.HasOne("PinPoint.Data.Symptom", "Symptom")
                         .WithMany("PainEntrySymptoms")
                         .HasForeignKey("SymptomId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("PainEntry");

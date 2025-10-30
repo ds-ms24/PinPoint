@@ -132,6 +132,14 @@ namespace PinPoint.Controllers
             {
                 return NotFound();
             }
+
+            if (await _symptomsService.IsSymptomInUse(id.Value))
+            {
+                TempData["Error"] = "This symptom is currently in use by one or more entries. " +
+                    "Please remove it from all entries before deleting.";
+                    return RedirectToAction(nameof(Index));
+            }
+
             return View(symptom);
         }
 
@@ -140,7 +148,15 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (await _symptomsService.IsSymptomInUse(id))
+            {
+                TempData["Error"] = "This symptom is currently in use by one or more entries. " +
+                    "Please remove it from all entries before deleting.";
+                    return RedirectToAction(nameof(Index));
+            }
+
             await _symptomsService.Remove(id);
+            TempData["Success"] = "Symptom deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

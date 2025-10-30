@@ -20,7 +20,13 @@
                 @Html.DisplayNameFor(model => model.EntryTime)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SymptomName)
+                Symptoms
+            </th>
+            <th>
+                Locations
+            </th>
+            <th>
+                Triggers
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PainIntensity)
@@ -53,9 +59,44 @@
                 @Html.DisplayFor(modelItem => item.EntryTime)
             </td>
             <td>
-                @if (!string.IsNullOrWhiteSpace(item.SymptomName))
+                @if (!string.IsNullOrWhiteSpace(item.SymptomNames))
                 {
-                    <span class="badge bg-secondary">@item.SymptomName</span>
+                    var symptoms = item.SymptomNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim());
+                    foreach (var symptom in symptoms)
+                    {
+                        <span class="badge bg-secondary me-1 mb-1">@symptom</span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">—</span>
+                }
+            </td>
+            <td>
+                @if (!string.IsNullOrWhiteSpace(item.LocationNames))
+                {
+                    var locations = item.LocationNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(l => l.Trim());
+                    foreach (var location in locations)
+                    {
+                        <span class="badge bg-info me-1 mb-1">@location</span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">—</span>
+                }
+            </td>
+            <td>
+                @if (!string.IsNullOrWhiteSpace(item.TriggerNames))
+                {
+                    var triggers = item.TriggerNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim());
+                    foreach (var trigger in triggers)
+                    {
+                        <span class="badge bg-warning text-dark me-1 mb-1">@trigger</span>
+                    }
                 }
                 else
                 {

@@ -57,7 +57,7 @@ namespace PinPoint.Services.Triggers
 
         public bool TriggerExists(int id)
         {
-            return _context.Triggers.Any(e => e.Id == id);
+            return _context.Triggers.Any(q => q.Id == id);
         }
 
         public async Task<bool> CheckIfTriggerNameExistsAsync(string name)
@@ -71,5 +71,10 @@ namespace PinPoint.Services.Triggers
             var lowercaseName = triggerEdit.Name.ToLower();
             return await _context.Triggers.AnyAsync(q => q.Name.ToLower().Equals(lowercaseName) && q.Id != triggerEdit.Id);
         }
+
+        public async Task<bool> IsTriggerInUse(int triggerId)
+    {
+        return await _context.PainEntryTrigger.AnyAsync(q => q.TriggerId == triggerId);
+    }
     }
 }

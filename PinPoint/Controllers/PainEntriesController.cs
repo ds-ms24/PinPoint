@@ -56,7 +56,7 @@ namespace PinPoint.Controllers
                 EntryTime = TimeOnly.FromDateTime(DateTime.Now)
             };
 
-            await LoadDropdowns();
+            await LoadSelectList();
             return View(model);
         }
 
@@ -67,124 +67,86 @@ namespace PinPoint.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PainEntryCreateVM painEntryCreate)
         {   
-            // SYMPTOM
-            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewSymptomName))
+            // CHECK MAX 3 VALUE
+            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewSymptomName) && 
+                (painEntryCreate.SymptomIds?.Count ?? 0) >= 3)
             {
-                // Check if symptom already exists
-                var symptomExists = await _symptomsService.CheckIfSymptomNameExistsAsync(painEntryCreate.NewSymptomName);
+                ModelState.AddModelError("NewSymptomName", "Cannot add new symptom: maximum of 3 already selected");
+            }
 
-                if (!symptomExists)
+            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewLocationName) && 
+                (painEntryCreate.LocationIds?.Count ?? 0) >= 3)
+            {
+                ModelState.AddModelError("NewLocationName", "Cannot add new location: maximum of 3 already selected");
+            }
+
+            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewTriggerName) && 
+                (painEntryCreate.TriggerIds?.Count ?? 0) >= 3)
+            {
+                ModelState.AddModelError("NewTriggerName", "Cannot add new trigger: maximum of 3 already selected");
+            }
+
+            // CREATE SYMPTOM UNDER 3 MAX
+            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewSymptomName) && 
+                (painEntryCreate.SymptomIds?.Count ?? 0) < 3)  // Only create if under max
+            {
+                var newSymptomId = await CreateSymptomIfNotExists(painEntryCreate.NewSymptomName);
+                if (newSymptomId.HasValue)
                 {
-                    // Create new symptom
-                    var newSymptom = new SymptomCreateVM
-                    {
-                        Name = painEntryCreate.NewSymptomName
-                    };
-
-                    await _symptomsService.Create(newSymptom);
-
-                    // Get ID of new symptom
-                    var allSymptoms = await _symptomsService.GetAll();
-                    var createdSymptom = allSymptoms.FirstOrDefault
-                        (q => q.Name == painEntryCreate.NewSymptomName);
-
-                    if (createdSymptom != null)
-                    {
-                        painEntryCreate.SymptomId = createdSymptom.Id;
-                    }
+                    painEntryCreate.SymptomIds.Add(newSymptomId.Value);
                 }
                 else
                 {
-                    // If symptom exists, find ID and use
-                    var existingSymptoms = await _symptomsService.GetAll();
-                    var existingSymptom = existingSymptoms.FirstOrDefault
-                        (q => q.Name == painEntryCreate.NewSymptomName);
-
-                    if (existingSymptom != null)
-                    {
-                        painEntryCreate.SymptomId = existingSymptom.Id;
-                    }
+                    ModelState.AddModelError("NewSymptomName", "Unable to create or find the symptom.");
                 }
             }
 
-            // LOCATION
-            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewLocationName))
+            // CREATE LOCATION UNDER 3 MAX
+            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewLocationName) && 
+                (painEntryCreate.LocationIds?.Count ?? 0) < 3)  // Only create if under max
             {
-                // Check if location already exists
-                var locationExists = await _locationsService.CheckIfLocationNameExistsAsync(painEntryCreate.NewLocationName);
-
-                if (!locationExists)
+                var newLocationId = await CreateLocationIfNotExists(painEntryCreate.NewLocationName);
+                if (newLocationId.HasValue)
                 {
-                    // Create new location
-                    var newLocation = new LocationCreateVM
-                    {
-                        Name = painEntryCreate.NewLocationName
-                    };
-
-                    await _locationsService.Create(newLocation);
-
-                    // Get ID of new location
-                    var allLocations = await _locationsService.GetAll();
-                    var createdLocation = allLocations.FirstOrDefault
-                        (q => q.Name == painEntryCreate.NewLocationName);
-
-                    if (createdLocation != null)
-                    {
-                        painEntryCreate.LocationId = createdLocation.Id;
-                    }
+                    painEntryCreate.LocationIds.Add(newLocationId.Value);
                 }
                 else
                 {
-                    // If location exists, find ID and use
-                    var existingLocations = await _locationsService.GetAll();
-                    var existingLocation = existingLocations.FirstOrDefault
-                        (q => q.Name == painEntryCreate.NewLocationName);
-
-                    if (existingLocation != null)
-                    {
-                        painEntryCreate.LocationId = existingLocation.Id;
-                    }
+                    ModelState.AddModelError("NewLocationName", "Unable to create or find the location.");
                 }
             }
 
-            // TRIGGER
-            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewTriggerName))
+            // CREATE TRIGGER UNDER 3 MAX
+            if (!string.IsNullOrWhiteSpace(painEntryCreate.NewTriggerName) && 
+                (painEntryCreate.TriggerIds?.Count ?? 0) < 3)  // Only create if under max
             {
-                // Check if symptom already exists
-                var triggerExists = await _triggersService.CheckIfTriggerNameExistsAsync(painEntryCreate.NewTriggerName);
-
-                if (!triggerExists)
+                var newTriggerId = await CreateTriggerIfNotExists(painEntryCreate.NewTriggerName);
+                if (newTriggerId.HasValue)
                 {
-                    // Create new trigger
-                    var newTrigger = new TriggerCreateVM
-                    {
-                        Name = painEntryCreate.NewTriggerName
-                    };
-
-                    await _triggersService.Create(newTrigger);
-
-                    // Get ID of new trigger
-                    var allTriggers = await _triggersService.GetAll();
-                    var createdTrigger = allTriggers.FirstOrDefault
-                        (q => q.Name == painEntryCreate.NewTriggerName);
-
-                    if (createdTrigger != null)
-                    {
-                        painEntryCreate.TriggerId = createdTrigger.Id;
-                    }
+                    painEntryCreate.TriggerIds.Add(newTriggerId.Value);
                 }
                 else
                 {
-                    // If symptom exists, find ID and use
-                    var existingTriggers = await _triggersService.GetAll();
-                    var existingTrigger = existingTriggers.FirstOrDefault
-                        (q => q.Name == painEntryCreate.NewTriggerName);
-
-                    if (existingTrigger != null)
-                    {
-                        painEntryCreate.TriggerId = existingTrigger.Id;
-                    }
+                    ModelState.AddModelError("NewTriggerName", "Unable to create or find the trigger.");
                 }
+            }
+
+            // VALIDATE SYMPTOM MIN VALUE
+            if (painEntryCreate.SymptomIds == null || !painEntryCreate.SymptomIds.Any())
+            {
+                ModelState.AddModelError("SymptomIds", "You must select or create at least one symptom.");
+            }
+
+            // VALIDATE LOCATION MIN VALUE
+            if (painEntryCreate.LocationIds == null || !painEntryCreate.LocationIds.Any())
+            {
+                ModelState.AddModelError("LocationIds", "You must select or create at least one location.");
+            }
+
+            // VALIDATE TRIGGER MIN VALUE
+            if (painEntryCreate.TriggerIds == null || !painEntryCreate.TriggerIds.Any())
+            {
+                ModelState.AddModelError("TriggerIds", "You must select or create at least one trigger.");
             }
 
             if (ModelState.IsValid)
@@ -192,8 +154,8 @@ namespace PinPoint.Controllers
                 await _painEntriesService.Create(painEntryCreate);
                 return RedirectToAction(nameof(Index));
             }
-            
-            await LoadDropdowns();
+    
+            await LoadSelectList();
             return View(painEntryCreate);
         }
 
@@ -211,7 +173,7 @@ namespace PinPoint.Controllers
                 return NotFound();
             }
 
-            await LoadDropdowns();
+            await LoadSelectList();
             return View(painEntry);
         }
 
@@ -223,80 +185,91 @@ namespace PinPoint.Controllers
         public async Task<IActionResult> Edit(int id, PainEntryEditVM painEntryEdit)
         {
             if (id != painEntryEdit.Id)
-            {
                 return NotFound();
+
+            painEntryEdit.EntryDate = DateOnly.FromDateTime(DateTime.Today);
+            painEntryEdit.EntryTime = TimeOnly.FromDateTime(DateTime.Now);
+
+            // CHECK FOR MAX 3 VALUE - CANNOT ADD NEW VALUE
+            if (!string.IsNullOrWhiteSpace(painEntryEdit.NewSymptomName) && 
+                (painEntryEdit.SymptomIds?.Count ?? 0) >= 3)
+            {
+                ModelState.AddModelError("NewSymptomName", "Cannot add new symptom: maximum of 3 already selected");
             }
 
-            // SYMPTOM
-            if(!string.IsNullOrWhiteSpace(painEntryEdit.NewSymptomName))
+            if (!string.IsNullOrWhiteSpace(painEntryEdit.NewLocationName) && 
+                (painEntryEdit.LocationIds?.Count ?? 0) >= 3)
             {
-                var symptomExists = await _symptomsService.CheckIfSymptomNameExistsAsync(painEntryEdit.NewSymptomName);
+                ModelState.AddModelError("NewLocationName", "Cannot add new location: maximum of 3 already selected");
+            }
 
-                if (!symptomExists)
+            if (!string.IsNullOrWhiteSpace(painEntryEdit.NewTriggerName) && 
+                (painEntryEdit.TriggerIds?.Count ?? 0) >= 3)
+            {
+                ModelState.AddModelError("NewTriggerName", "Cannot add new trigger: maximum of 3 already selected");
+            }
+
+            // CREATE SYMPTOM UNDER 3 MAX
+            if (!string.IsNullOrWhiteSpace(painEntryEdit.NewSymptomName) && 
+                (painEntryEdit.SymptomIds?.Count ?? 0) < 3)  // Only create if under max
+            {
+                var newSymptomId = await CreateSymptomIfNotExists(painEntryEdit.NewSymptomName);
+                if (newSymptomId.HasValue)
                 {
-                    var newSymptom = new SymptomCreateVM
-                    {
-                        Name = painEntryEdit.NewSymptomName
-                    };
-
-                    await _symptomsService.Create(newSymptom);
-
-                    var allSymptoms = await _symptomsService.GetAll();
-                    var createdSymptom = allSymptoms.FirstOrDefault(q => q.Name == painEntryEdit.NewSymptomName);
-
-                    if (createdSymptom != null)
-                    {
-                        painEntryEdit.SymptomId = createdSymptom.Id;
-                    }
+                    painEntryEdit.SymptomIds.Add(newSymptomId.Value);
+                }
+                else
+                {
+                    ModelState.AddModelError("NewSymptomName", "Unable to create or find the symptom.");
                 }
             }
 
-            // LOCATION
-            if(!string.IsNullOrWhiteSpace(painEntryEdit.NewLocationName))
+            // VALIDATE SYMPTOM MIN VALUE
+            if (painEntryEdit.SymptomIds == null || !painEntryEdit.SymptomIds.Any())
             {
-                var locationExists = await _locationsService.CheckIfLocationNameExistsAsync(painEntryEdit.NewLocationName);
+                ModelState.AddModelError("SymptomIds", "You must select or create at least one symptom.");
+            }
 
-                if (!locationExists)
+            // CREATE LOCATION UNDER 3 MAX
+            if (!string.IsNullOrWhiteSpace(painEntryEdit.NewLocationName) && 
+                (painEntryEdit.LocationIds?.Count ?? 0) < 3)  // Only create if under max
+            {
+                var newLocationId = await CreateLocationIfNotExists(painEntryEdit.NewLocationName);
+                if (newLocationId.HasValue)
                 {
-                    var newLocation = new LocationCreateVM
-                    {
-                        Name = painEntryEdit.NewLocationName
-                    };
-
-                    await _locationsService.Create(newLocation);
-
-                    var allLocations = await _locationsService.GetAll();
-                    var createdLocation = allLocations.FirstOrDefault(q => q.Name == painEntryEdit.NewLocationName);
-
-                    if (createdLocation != null)
-                    {
-                        painEntryEdit.LocationId = createdLocation.Id;
-                    }
+                    painEntryEdit.LocationIds.Add(newLocationId.Value);
+                }
+                else
+                {
+                    ModelState.AddModelError("NewLocationName", "Unable to create or find the location.");
                 }
             }
 
-            // TRIGGER
-            if(!string.IsNullOrWhiteSpace(painEntryEdit.NewTriggerName))
+            // VALIDATE LOCATION MIN VALUE
+            if (painEntryEdit.LocationIds == null || !painEntryEdit.LocationIds.Any())
             {
-                var triggerExists = await _triggersService.CheckIfTriggerNameExistsAsync(painEntryEdit.NewTriggerName);
+                ModelState.AddModelError("LocationIds", "You must select or create at least one location.");
+            }
 
-                if (!triggerExists)
+            // CREATE TRIGGER UNDER 3 MAX
+            if (!string.IsNullOrWhiteSpace(painEntryEdit.NewTriggerName) && 
+                (painEntryEdit.TriggerIds?.Count ?? 0) < 3)  // Only create if under max
+            {
+                var newTriggerId = await CreateTriggerIfNotExists(painEntryEdit.NewTriggerName);
+                if (newTriggerId.HasValue)
                 {
-                    var newTrigger = new TriggerCreateVM
-                    {
-                        Name = painEntryEdit.NewTriggerName
-                    };
-
-                    await _triggersService.Create(newTrigger);
-
-                    var allTriggers = await _triggersService.GetAll();
-                    var createdTrigger = allTriggers.FirstOrDefault(q => q.Name == painEntryEdit.NewTriggerName);
-
-                    if (createdTrigger != null)
-                    {
-                        painEntryEdit.TriggerId = createdTrigger.Id;
-                    }
+                    painEntryEdit.TriggerIds.Add(newTriggerId.Value);
                 }
+                else
+                {
+                    ModelState.AddModelError("NewTriggerName", "Unable to create or find the trigger.");
+                }
+            }
+
+            // VALIDATE TRIGGER MIN VALUE
+            if (painEntryEdit.TriggerIds == null || !painEntryEdit.TriggerIds.Any())
+            {
+                ModelState.AddModelError("TriggerIds", "You must select or create at least one trigger.");
             }
 
             if (ModelState.IsValid)
@@ -306,20 +279,15 @@ namespace PinPoint.Controllers
                     await _painEntriesService.Edit(painEntryEdit);
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (! _painEntriesService.PainEntryExists(painEntryEdit.Id))
-                    {
+                    if (!_painEntriesService.PainEntryExists(painEntryEdit.Id))
                         return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
 
-            await LoadDropdowns();
+            await LoadSelectList();
             return View(painEntryEdit);
         }
 
@@ -348,7 +316,7 @@ namespace PinPoint.Controllers
             await _painEntriesService.Remove(id);
             return RedirectToAction(nameof(Index));
         }
-        private async Task LoadDropdowns()
+        private async Task LoadSelectList()
         {   
             // SYMPTOMS
             var symptoms = await _symptomsService.GetAll();
@@ -397,6 +365,54 @@ namespace PinPoint.Controllers
             }));
 
             ViewBag.Triggers = triggerSelectList;
+        }
+        private async Task<int?> CreateSymptomIfNotExists(string name)
+        {
+            if (await _symptomsService.CheckIfSymptomNameExistsAsync(name))
+            {
+                var existing = (await _symptomsService.GetAll())
+                    .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                return existing?.Id;
+            }
+
+            var newSymptom = new SymptomCreateVM { Name = name };
+            await _symptomsService.Create(newSymptom);
+            
+            var created = (await _symptomsService.GetAll())
+                .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return created?.Id;
+        }
+        private async Task<int?> CreateLocationIfNotExists(string name)
+        {
+            if (await _locationsService.CheckIfLocationNameExistsAsync(name))
+            {
+                var existing = (await _locationsService.GetAll())
+                    .FirstOrDefault(l => l.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                return existing?.Id;
+            }
+
+            var newLocation = new LocationCreateVM { Name = name };
+            await _locationsService.Create(newLocation);
+            
+            var created = (await _locationsService.GetAll())
+                .FirstOrDefault(l => l.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return created?.Id;
+        }
+        private async Task<int?> CreateTriggerIfNotExists(string name)
+        {
+            if (await _triggersService.CheckIfTriggerNameExistsAsync(name))
+            {
+                var existing = (await _triggersService.GetAll())
+                    .FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                return existing?.Id;
+            }
+
+            var newTrigger = new TriggerCreateVM { Name = name };
+            await _triggersService.Create(newTrigger);
+            
+            var created = (await _triggersService.GetAll())
+                .FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return created?.Id;
         }
     }
 }
