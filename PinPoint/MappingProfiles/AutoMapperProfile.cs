@@ -1,5 +1,6 @@
 ﻿﻿using AutoMapper;
 using PinPoint.Data;
+using PinPoint.Models.DeleteRequests;
 using PinPoint.Models.Locations;
 using PinPoint.Models.PainEntries;
 using PinPoint.Models.PainEntry;
@@ -85,5 +86,23 @@ public class AutoMapperProfile : Profile
         CreateMap<Location, LocationEditVM>();
         CreateMap<LocationEditVM, Location>()
             .ForMember(dest => dest.PainEntries, opt => opt.Ignore());
+
+        // Delete Requests
+        CreateMap<DeleteRequest, DeleteRequestReadOnlyVM>()
+            .ForMember(dest => dest.EntryDate, opt => opt.MapFrom(src => src.PainEntry.EntryDate))
+            .ForMember(dest => dest.EntryTime, opt => opt.MapFrom(src => src.PainEntry.EntryTime))
+            .ForMember(dest => dest.PainDescription, opt => opt.MapFrom(src => src.PainEntry.PainDescription))
+            .ForMember(dest => dest.PainIntensity, opt => opt.MapFrom(src => src.PainEntry.PainIntensity))
+            .ForMember(dest => dest.DurationMinutes, opt => opt.MapFrom(src => src.PainEntry.DurationMinutes))
+            .ForMember(dest => dest.ActivitiesBeforePain, opt => opt.MapFrom(src => src.PainEntry.ActivitiesBeforePain))
+            .ForMember(dest => dest.ReliefMethodsTried, opt => opt.MapFrom(src => src.PainEntry.ReliefMethodsTried))
+            .ForMember(dest => dest.ReliefEffectiveness, opt => opt.MapFrom(src => src.PainEntry.ReliefEffectiveness))
+            .ForMember(dest => dest.AdditionalNotes, opt => opt.MapFrom(src => src.PainEntry.AdditionalNotes))
+            .ForMember(dest => dest.SymptomNames, opt => opt.MapFrom(src => 
+                string.Join(", ", src.PainEntry.PainEntrySymptoms.Select(pes => pes.Symptom.Name))))
+            .ForMember(dest => dest.LocationNames, opt => opt.MapFrom(src => 
+                string.Join(", ", src.PainEntry.PainEntryLocations.Select(pel => pel.Location.Name))))
+            .ForMember(dest => dest.TriggerNames, opt => opt.MapFrom(src => 
+                string.Join(", ", src.PainEntry.PainEntryTriggers.Select(pet => pet.Trigger.Name))));
     }
 }

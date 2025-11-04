@@ -1,13 +1,14 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PinPoint.Data;
-using System.Reflection;
-using AutoMapper;
 using PinPoint.Migrations;
-using PinPoint.Services.Symptoms;
-using PinPoint.Services.PainEntries;
+using PinPoint.Services.DeleteRequests;
 using PinPoint.Services.Locations;
+using PinPoint.Services.PainEntries;
+using PinPoint.Services.Symptoms;
 using PinPoint.Services.Triggers;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddScoped<ITriggersService, TriggersService>();
 builder.Services.AddScoped<ILocationsService, LocationsService>();
 builder.Services.AddScoped<IPainEntriesService, PainEntriesService>();
 builder.Services.AddScoped<ISymptomsService, SymptomsService>();
+builder.Services.AddScoped<IDeleteRequestsService, DeleteRequestsService>();
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 

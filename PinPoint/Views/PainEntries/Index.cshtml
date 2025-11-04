@@ -1,11 +1,30 @@
 ﻿@using PinPoint.Models.PainEntries
-@model IEnumerable<PainEntryReadOnlyVM>
+@model PainEntryIndexVM
 
 @{
     ViewData["Title"] = "Pain Entry";
 }
 
 <h1>Daily Pain Entry</h1>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text"
+                       name="searchString"
+                       value="@Model.CurrentFilter"
+                       class="form-control"
+                       placeholder="Search pain entries..." />
+                <button type="submit" class="btn btn-primary">Search</button>
+                @if (!string.IsNullOrWhiteSpace(Model.CurrentFilter))
+                {
+                    <a asp-action="Index" class="btn btn-secondary">Clear</a>
+                }
+            </div>
+        </div>
+    </div>
+</form>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Add New Pain Entry</a>
@@ -14,10 +33,18 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.EntryDate)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.DateSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Entry Date
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EntryTime)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.TimeSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Entry Time
+                </a>
             </th>
             <th>
                 Symptoms
@@ -29,28 +56,60 @@
                 Triggers
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PainIntensity)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.IntensitySortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Pain Intensity
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PainDescription)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.DescriptionSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Pain Description
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ActivitiesBeforePain)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.DurationSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Duration
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReliefMethodsTried)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.ActivitiesSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Activities Before Pain
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReliefEffectiveness)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.ReliefMethodsSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Relief Methods Tried
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AdditionalNotes)
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.ReliefEffectivenessSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Relief Effectiveness
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@Model.AdditionalNotesSortParam"
+                   asp-route-searchString="@Model.CurrentFilter">
+                    Additional Notes
+                </a>
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model.PainEntries)
+    {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.EntryDate)
@@ -110,6 +169,9 @@
                 @Html.DisplayFor(modelItem => item.PainDescription)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.DurationMinutes)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.ActivitiesBeforePain)
             </td>
             <td>
@@ -122,9 +184,32 @@
                 @Html.DisplayFor(modelItem => item.AdditionalNotes)
             </td>
             <td>
+                @if (item.PendingDeleteRequest)
+                {
+                    <span class="badge bg-warning text-dark mb-1">
+                        <i class="bi bi-hourglass-split"></i> Delete Pending
+                    </span>
+                    <br />
+                }
+
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+
+                @if (User.IsInRole("Employee") || User.IsInRole("Manager") || User.IsInRole("Developer"))
+                {
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                }
+                else if (User.IsInRole("Patient"))
+                {
+                    @if (!item.PendingDeleteRequest)
+                    {
+                        <a asp-controller="DeleteRequests" asp-action="Create" asp-route-painEntryId="@item.Id">Request Delete</a>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Delete Requested</span>
+                    }
+                }
             </td>
         </tr>
 }

@@ -24,6 +24,8 @@ namespace PinPoint.Data
         public DbSet<PainEntryTrigger> PainEntryTrigger { get; set; }
         public DbSet<PainEntryLocation> PainEntryLocation { get; set; }
 
+        public DbSet<DeleteRequest> DeleteRequests { get; set; }
+
         // Initialise DB with roles
         protected override void OnModelCreating(ModelBuilder builder)
         {

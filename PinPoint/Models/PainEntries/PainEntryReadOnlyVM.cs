@@ -60,5 +60,7 @@ namespace PinPoint.Models.PainEntries
 
         [Display(Name = "Additional Notes")]
         public string? AdditionalNotes { get; set; }
+
+        public bool PendingDeleteRequest { get; set; }
     }
 }

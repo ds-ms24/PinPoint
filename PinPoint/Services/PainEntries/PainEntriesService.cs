@@ -16,18 +16,70 @@ namespace PinPoint.Services.PainEntries
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<List<PainEntryReadOnlyVM>> GetAll()
+        public async Task<List<PainEntryReadOnlyVM>> GetAll(string? searchString = null, string? sortOrder = null)
         {
-            var painEntries = await _context.PainEntries
+            var query = _context.PainEntries
                 .Include(q => q.PainEntrySymptoms)
                     .ThenInclude(q => q.Symptom)
                 .Include(q => q.PainEntryLocations)
                     .ThenInclude(q => q.Location)
                 .Include(q => q.PainEntryTriggers)
                     .ThenInclude(q => q.Trigger)
+                .AsQueryable();
+
+            // SEARCH FILTER
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(q =>
+                    q.PainDescription!.ToUpper().Contains(searchString.ToUpper()) ||
+                    q.ActivitiesBeforePain!.ToUpper().Contains(searchString.ToUpper()) ||
+                    q.ReliefMethodsTried!.ToUpper().Contains(searchString.ToUpper()) ||
+                    (q.AdditionalNotes != null && q.AdditionalNotes.ToUpper().Contains(searchString.ToUpper())) ||
+                    q.PainEntrySymptoms.Any(q => q.Symptom.Name.ToUpper().Contains(searchString.ToUpper())) ||
+                    q.PainEntryLocations.Any(q => q.Location.Name.ToUpper().Contains(searchString.ToUpper())) ||
+                    q.PainEntryTriggers.Any(q => q.Trigger.Name.ToUpper().Contains(searchString.ToUpper()))
+                );
+            }
+
+            // SORTING
+            query = sortOrder switch
+            {
+                "date_desc" => query.OrderByDescending(q => q.EntryDate).ThenByDescending(q => q.EntryTime),
+                "time" => query.OrderBy(q => q.EntryTime),
+                "time_desc" => query.OrderByDescending(q => q.EntryTime),
+                "intensity" => query.OrderBy(q => q.PainIntensity),
+                "intensity_desc" => query.OrderByDescending(q => q.PainIntensity),
+                "description" => query.OrderBy(q => q.PainDescription),
+                "description_desc" => query.OrderByDescending(q => q.PainDescription),
+                "duration" => query.OrderBy(q => q.DurationMinutes),
+                "duration_desc" => query.OrderByDescending(q => q.DurationMinutes),
+                "activities" => query.OrderBy(q => q.ActivitiesBeforePain),
+                "activities_desc" => query.OrderByDescending(q => q.ActivitiesBeforePain),
+                "relief_methods" => query.OrderBy(q => q.ReliefMethodsTried),
+                "relief_methods_desc" => query.OrderByDescending(q => q.ReliefMethodsTried),
+                "relief_effectiveness" => query.OrderBy(q => q.ReliefEffectiveness),
+                "relief_effectiveness_desc" => query.OrderByDescending(q => q.ReliefEffectiveness),
+                "notes" => query.OrderBy(q => q.AdditionalNotes),
+                "notes_desc" => query.OrderByDescending(q => q.AdditionalNotes),
+                _ => query.OrderBy(q => q.EntryDate).ThenBy(q => q.EntryTime), 
+            };
+
+            var painEntries = await query.ToListAsync();
+            var viewData = _mapper.Map<List<PainEntryReadOnlyVM>>(painEntries);
+
+            // Get all pending delete request pain entry IDs
+            var pendingDeleteRequestIds = await _context.DeleteRequests
+                .Where(q => q.Status == DeleteRequestStatusEnum.Pending)
+                .Select(q => q.PainEntryId)
                 .ToListAsync();
-            
-        return _mapper.Map<List<PainEntryReadOnlyVM>>(painEntries);
+    
+            // Mark pain entries that have pending delete requests
+            foreach (var x in viewData)
+            {
+                x.PendingDeleteRequest = pendingDeleteRequestIds.Contains(x.Id);
+            }
+    
+            return viewData;
         }
 
         public async Task<PainEntryEditVM> GetForEdit(int? id)

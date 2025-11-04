@@ -6,7 +6,7 @@ using PinPoint.Services.Symptoms;
 
 namespace PinPoint.Controllers
 {
-    [Authorize(Roles ="Developer")]
+    [Authorize(Roles ="Employee,Manager,Developer")]
     public class SymptomsController(ISymptomsService symptomsService) : Controller
     {
         private readonly ISymptomsService _symptomsService = symptomsService;

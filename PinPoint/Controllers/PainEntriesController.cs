@@ -24,9 +24,16 @@ namespace PinPoint.Controllers
         private readonly ITriggersService _triggersService = triggersService;
 
         // GET: PainEntries
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string sortOrder)
         {
-            var viewData = await _painEntriesService.GetAll();
+            var painEntries = await _painEntriesService.GetAll(searchString, sortOrder);
+
+            var viewData = new PainEntryIndexVM
+            {
+                PainEntries = painEntries,
+                CurrentFilter = searchString,
+                CurrentSort = sortOrder
+            };
             return View(viewData);
         }
 

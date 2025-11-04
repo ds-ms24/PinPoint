@@ -1,0 +1,149 @@
+﻿@model IEnumerable<PinPoint.Models.DeleteRequests.DeleteRequestReadOnlyVM>
+
+@{
+    ViewData["Title"] = "Pending Delete Requests";
+}
+
+<h1>Pending Delete Requests</h1>
+
+<partial name="_AlertMessage" />
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No pending delete requests at this time.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Requested By</th>
+                    <th>Requested Date</th>
+                    <th>Reason</th>
+                    <th>Entry Date</th>
+                    <th>Entry Time</th>
+                    <th>Symptoms</th>
+                    <th>Locations</th>
+                    <th>Triggers</th>
+                    <th>Pain Intensity</th>
+                    <th>Pain Description</th>
+                    <th>Duration</th>
+                    <th>Activities Before Pain</th>
+                    <th>Relief Methods Tried</th>
+                    <th>Relief Effectiveness</th>
+                    <th>Additional Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.RequestedByUserEmail</td>
+                        <td>@item.RequestedDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(item.Reason ?? "—")</td>
+                        <td>@item.EntryDate</td>
+                        <td>@item.EntryTime</td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.SymptomNames))
+                            {
+                                var symptoms = item.SymptomNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(s => s.Trim());
+                                foreach (var symptom in symptoms)
+                                {
+                                    <span class="badge bg-secondary me-1 mb-1">@symptom</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.LocationNames))
+                            {
+                                var locations = item.LocationNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(l => l.Trim());
+                                foreach (var location in locations)
+                                {
+                                    <span class="badge bg-info me-1 mb-1">@location</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.TriggerNames))
+                            {
+                                var triggers = item.TriggerNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(t => t.Trim());
+                                foreach (var trigger in triggers)
+                                {
+                                    <span class="badge bg-warning text-dark me-1 mb-1">@trigger</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>@item.PainIntensity</td>
+                        <td>@item.PainDescription</td>
+                        <td>@item.DurationMinutes</td>
+                        <td>@item.ActivitiesBeforePain</td>
+                        <td>@item.ReliefMethodsTried</td>
+                        <td>@item.ReliefEffectiveness</td>
+                        <td>@item.AdditionalNotes</td>
+                        <td>
+                            <form asp-action="Approve" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-success btn-sm"
+                                        onclick="return confirm('Approve this delete request? The pain entry will be permanently deleted.');">
+                                    Approve
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#rejectModal@(item.Id)">
+                                Reject
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Reject Modal -->
+                    <div class="modal fade" id="rejectModal@(item.Id)" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form asp-action="Reject" method="post">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Reject Delete Request</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <p><strong>Requested by:</strong> @item.RequestedByUserEmail</p>
+                                        <p><strong>Pain Entry Date:</strong> @item.EntryDate</p>
+                                        <p><strong>Their Reason:</strong> @(item.Reason ?? "No reason provided")</p>
+                                        <hr />
+                                        <div class="mb-3">
+                                            <label class="form-label">Reason for Rejection (Optional)</label>
+                                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Reject Request</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </tbody>
+        </table>
+    </div>
+}

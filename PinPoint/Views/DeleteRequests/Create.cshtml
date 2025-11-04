@@ -1,0 +1,40 @@
+﻿@model PinPoint.Models.DeleteRequests.DeleteRequestCreateVM
+
+@{
+    ViewData["Title"] = "Request Deletion";
+}
+
+<h1>Request Pain Entry Deletion</h1>
+
+<partial name="_AlertMessage" />
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PainEntryId" />
+            
+            <div class="alert alert-warning">
+                <strong>Note:</strong> This will submit a request to delete this pain entry. 
+                An employee will review your request.
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Reason" class="control-label"></label>
+                <textarea asp-for="Reason" class="form-control" rows="4" 
+                          placeholder="Optional: Provide a reason for this deletion request"></textarea>
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Submit Request" class="btn btn-primary" />
+                <a asp-controller="PainEntries" asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

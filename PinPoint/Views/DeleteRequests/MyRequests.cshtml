@@ -1,0 +1,80 @@
+﻿@model IEnumerable<PinPoint.Models.DeleteRequests.DeleteRequestReadOnlyVM>
+
+@{
+    ViewData["Title"] = "My Delete Requests";
+}
+
+<h1>My Delete Requests</h1>
+
+<partial name="_AlertMessage" />
+
+<p>
+    <a asp-controller="PainEntries" asp-action="Index" class="btn btn-secondary">Back to Pain Entries</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You have not submitted any delete requests yet.
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayName("Requested Date")</th>
+                <th>@Html.DisplayName("Pain Entry Date")</th>
+                <th>@Html.DisplayName("Description")</th>
+                <th>@Html.DisplayName("My Reason")</th>
+                <th>@Html.DisplayName("Status")</th>
+                <th>@Html.DisplayName("Reviewed Date")</th>
+                <th>@Html.DisplayName("Reviewer Notes")</th>
+                <th>@Html.DisplayName("Actions")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.RequestedDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.EntryDate</td>
+                    <td>@item.PainDescription</td>
+                    <td>@(item.Reason ?? "—")</td>
+                    <td>
+                        @if (item.Status == PinPoint.Data.DeleteRequestStatusEnum.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (item.Status == PinPoint.Data.DeleteRequestStatusEnum.Approved)
+                        {
+                            <span class="badge bg-success">Approved</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Rejected</span>
+                        }
+                    </td>
+                    <td>@(item.ReviewedDate?.ToString("g") ?? "—")</td>
+                    <td>@(item.ReviewerNotes ?? "—")</td>
+                    <td>
+                        @if (item.Status == PinPoint.Data.DeleteRequestStatusEnum.Pending)
+                        {
+                            <form asp-action="Cancel" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger" 
+                                        onclick="return confirm('Cancel this delete request?');">
+                                    Cancel Request
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

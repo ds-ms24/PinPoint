@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace PinPoint.Controllers
 {   
-    [Authorize(Roles ="Developer")]
+    [Authorize(Roles ="Employee,Manager,Developer")]
     public class TriggersController(ITriggersService triggersService) : Controller
     {
         private readonly ITriggersService _triggersService = triggersService;

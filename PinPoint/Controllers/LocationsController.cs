@@ -9,7 +9,7 @@ using PinPoint.Services.Locations;
 
 namespace PinPoint.Controllers
 {   
-    [Authorize(Roles ="Developer")]
+    [Authorize(Roles ="Employee,Manager,Developer")]
     public class LocationsController(ILocationsService locationsService) : Controller
     {
         private readonly ILocationsService _locationsService = locationsService;
